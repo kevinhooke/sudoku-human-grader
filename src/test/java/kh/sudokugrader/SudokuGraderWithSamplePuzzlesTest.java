@@ -29,12 +29,29 @@ public class SudokuGraderWithSamplePuzzlesTest {
         {0,3,4,0,6,9,0,0,0}
     };
     
+    private int[][] sudokuGrid1_medium = {
+        {5,6,8,9,0,0,0,0,0},
+        {0,0,0,0,0,0,4,0,0},
+        {0,4,3,0,7,5,8,0,0},
+        {0,8,9,0,4,2,0,7,0},
+        {0,0,0,0,9,0,0,0,0},
+        {0,7,0,8,6,0,2,9,0},
+        {0,0,4,7,2,0,9,3,0},
+        {0,0,6,0,0,0,0,0,0},
+        {0,0,0,0,0,8,1,4,5}
+    };
+    
+    
+    /**
+     * This easy puzzle can be solved with only naked singles., confirming therefore
+     * difficult = easy.
+     */
     @Test
     public void testEasy1(){
         SudokuGraderApp app = new SudokuGraderApp();
         app.setSudokuGrid(this.sudokuGrid2_easy);
         app.populateSolutionGridWithStartingPosition();
-        app.solve();
+        app.gradePuzzle();
         app.printSolutionGridWithBorders();
         
         //TODO need asserts
@@ -42,6 +59,9 @@ public class SudokuGraderWithSamplePuzzlesTest {
     
 
     /**
+     * This easy puzzle can be solved with only naked singles., confirming therefore
+     * difficult = easy.
+     * 
      * Result from DLX Solver:
 +-------+-------+-------+
 | 3 4 9 | 8 1 2 | 6 7 5 | 
@@ -62,10 +82,25 @@ public class SudokuGraderWithSamplePuzzlesTest {
         SudokuGraderApp app = new SudokuGraderApp();
         app.setSudokuGrid(this.sudokuGrid1_easy);
         app.populateSolutionGridWithStartingPosition();
-        app.solve();
+        app.gradePuzzle();
         app.printSolutionGridWithBorders();
         
         //TODO need asserts
     }
+    
+    /**
+     * This medium difficulty example cannot be solved with only naked singles.
+     */
+    @Test
+    public void testMedium1(){
+        SudokuGraderApp app = new SudokuGraderApp();
+        app.setSudokuGrid(this.sudokuGrid1_medium);
+        app.populateSolutionGridWithStartingPosition();
+        app.gradePuzzle();
+        app.printSolutionGridWithBorders();
+        
+        //TODO need asserts
+    }
+    
     
 }

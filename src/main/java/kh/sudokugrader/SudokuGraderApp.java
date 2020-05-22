@@ -72,7 +72,7 @@ public class SudokuGraderApp {
         app.populateSolutionGridWithStartingPosition();
         app.printSolutionGrid();
         long startTime = System.currentTimeMillis();
-        app.solve();
+        app.gradePuzzle();
         long endTime = System.currentTimeMillis();
         app.printSolutionGridWithBorders();
         System.out.println("Complete!");
@@ -180,39 +180,49 @@ public class SudokuGraderApp {
     }
 
     /**
-     * Solves the grid. Loops through squares first, inserting possible values
-     * into each empty cell. Then iterates row by row removing single values
-     * from sets of guesses until unable to remove any values.
+     * Grades the puzzle complexity by counting each of the techniques needed to solve the
+     * puzzle. Loops through squares first, inserting candidate values
+     * into each empty cell.
+     * 
+     * Counts:
+     * - naked singles
+     * - TODO
      */
-    void solve() {
+    void gradePuzzle() {
 
         int passesThroughGridCount = 0;
+        PuzzleDifficulty difficulty = new PuzzleDifficulty();
 
-        // pass 1 - loop through squares and populate blank cells with lists of
-        // possible values
+        // pass 1 - loop through squares and populate empty cells with lists of all candidate values
         for (int rowSquare = 0; rowSquare < 3; rowSquare++) {
             for (int colSquare = 0; colSquare < 3; colSquare++) {
                 System.out.print("Square " + rowSquare + ", " + colSquare + ": ");
                 Set<Integer> singleValuesInSquare = this.getSingleValuesInSquare(rowSquare, colSquare);
                 this.printValuesSet(singleValuesInSquare);
 
-                Set<Integer> missingValues = this.getMissingPotentialValues(singleValuesInSquare);
-                System.out.print("Missing values: ");
-                this.printValuesSet(missingValues);
-                // insert missing values into every blank cell in this square
-                this.updateValuesInSquare(rowSquare, colSquare, new ArrayList<Integer>(missingValues));
+                Set<Integer> candidateValues = this.getCandidateValues(singleValuesInSquare);
+                System.out.print("Candidate values: ");
+                this.printValuesSet(candidateValues);
+                // insert candidate values into every blank cell in this square
+                this.updateValuesInSquare(rowSquare, colSquare, new ArrayList<Integer>(candidateValues));
             }
         }
 
         this.printSolutionGrid();
 
-        // pass 2 - loop through individual cells and remove any invalid values
+        // pass 2 - loop through individual cells and apply human solving techniques to determine complexity
+        // continues until no more solutions are found
         boolean solvedValuesOnAtLeastOnePass = true;
+        boolean solutionFound = false;
+        
         while (solvedValuesOnAtLeastOnePass) {
             boolean replacedOnLastIteration = false;
             for (int col = 0; col < 9; col++) {
                 for (int row = 0; row < 9; row++) {
-                    boolean solvedValuesThisPass = this.removeSingleValuesFromCurrentGuesses(row, col);
+                    
+                    //TODO need to update difficulty here
+                    
+                    boolean solvedValuesThisPass = this.findNakedSinglesInCandidates(row, col);
                     if (solvedValuesThisPass) {
                         replacedOnLastIteration = solvedValuesThisPass;
                     }
@@ -223,19 +233,99 @@ public class SudokuGraderApp {
             }
             passesThroughGridCount++;
             this.printSolutionGrid();
-            System.out.println("Passes through grid: " + passesThroughGridCount);
+        }
+        
+        //did we find a solution? if not try next approach
+        solutionFound = this.checkForCompleteSolution();
+        if(!solutionFound) {
+            solvedValuesOnAtLeastOnePass = false;
+            
+            while (solvedValuesOnAtLeastOnePass) {
+                boolean replacedOnLastIteration = false;
+                for (int col = 0; col < 9; col++) {
+                    for (int row = 0; row < 9; row++) {
+                        
+                        //TODO need to update difficulty here
+                        
+                        boolean solvedValuesThisPass = this.findHiddenSinglesInCandidates(row, col);
+                        if (solvedValuesThisPass) {
+                            replacedOnLastIteration = solvedValuesThisPass;
+                        }
+                    }
+                    if (!replacedOnLastIteration) {
+                        solvedValuesOnAtLeastOnePass = false;
+                    }
+                }
+                passesThroughGridCount++;
+                this.printSolutionGrid();
+            }
+            
         }
 
+        if(solutionFound) {
+            System.out.println("Puzzle solved: Yes");
+        }
+        else {
+            System.out.println("Puzzle solved: NO");
+        }
+        System.out.println("Passes through grid: " + passesThroughGridCount);
     }
 
-    private boolean removeSingleValuesFromCurrentGuesses(int row, int col) {
+    
+    private boolean findHiddenSinglesInCandidates(int row, int col) {
+        // TODO complete next approach
+        return false;
+    }
+
+    
+    /**
+     * Each cell must have 1 final candidate value selected for the solution. If
+     * there are any cells with > 1 candidate then the puzzle was not solved with the
+     * attempted solving techniques.
+     * 
+     * @return
+     */
+    private boolean checkForCompleteSolution() {
+        boolean solutionFound = true;
+        int numberOfUnsolvedCells = 0;
+        
+        for (List<List<Integer>> row : this.solutionGrid) {
+            for (List<Integer> currentCell : row) {
+
+                if (currentCell.size() > 1) {
+                    solutionFound = false;
+                    numberOfUnsolvedCells++;
+                }
+
+            }
+        }
+
+        System.out.println("Unsolved cells: " + numberOfUnsolvedCells);
+
+        
+        return solutionFound;
+    }
+
+    /**
+     * Finds any 'naked single' values in possible candidates. If any are found they
+     * are selected as a solution for that cell.
+     * 
+     * //TODO: it's possible this can be refactored to find pairs and other combinations too
+     * 
+     * @param row
+     * @param col
+     * @return true if any naked singles were found
+     */
+    private boolean findNakedSinglesInCandidates(int row, int col) {
         boolean valuesReplaced = false;
 
         Set<Integer> singleValuesInRow = this.getSingleValuesInRow(row);
         Set<Integer> singleValuesInCol = this.getSingleValuesInColumn(col);
         Set<Integer> singleValuesInSquare = this.getSingleValuesInSquareByRowCol(row, col);
         List<Integer> valuesInCell = this.getValueInCell(row, col);
-        // only replace if this cell currently has more than one guess
+        
+        // replace candidates in this cell if they appear as a naked single in the same row, column or square,
+        // but only if this cell isn't a naked single itself
         if (valuesInCell.size() > 1) {
             boolean valuesReplacedInRow = valuesInCell.removeAll(singleValuesInRow);
             boolean valuesReplacedInCol = valuesInCell.removeAll(singleValuesInCol);
@@ -429,7 +519,7 @@ public class SudokuGraderApp {
         return values;
     }
 
-    Set<Integer> getMissingPotentialValues(Set<Integer> currentValues) {
+    Set<Integer> getCandidateValues(Set<Integer> currentValues) {
 
         Set<Integer> missingValues = new HashSet<>(SudokuGraderApp.allowedValues);
         missingValues.removeAll(currentValues);
@@ -444,14 +534,5 @@ public class SudokuGraderApp {
         this.startingSudokuGrid = sudokuGrid;
     }
 
-    boolean isValueInCellValid(int row, int col) {
-        // TODO not used
-        return true;
-    }
-
-    boolean isGuessForCellValid(int row, int col, int guess) {
-        // TODO not used
-        return true;
-    }
 
 }
