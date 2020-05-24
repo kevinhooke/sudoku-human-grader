@@ -31,7 +31,7 @@ public class SudokuGraderAppTest {
 	@Test
 	public void testGetSingleValuesInColumn_0(){
 	    this.app.populateSolutionGridWithStartingPosition();
-	    Set<Integer> values = this.app.getSingleValuesInColumn(0);
+	    Set<Integer> values = this.app.findSingleValuesInColumn(0);
 	    Set<Integer> expectedValues = new HashSet<>();
 	    expectedValues.add(1);
 	    expectedValues.add(4);
@@ -203,5 +203,21 @@ public class SudokuGraderAppTest {
 
 	}
 
+	@Test
+    public void testFindHiddenSinglesInRow(){
+	    
+	    //TODO
+        Set<Integer> expectedValues = new HashSet<>();
+        expectedValues.add(3);
+        expectedValues.add(4);
+        expectedValues.add(6);
+        expectedValues.add(9);
+        this.app.populateSolutionGridWithStartingPosition();
+        
+        Set<Integer> values = this.app.findHiddenSinglesInRow(1);
+        
+        assertTrue(values.containsAll(expectedValues));
+
+	}
 	
 }
