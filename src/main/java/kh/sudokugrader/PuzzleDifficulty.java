@@ -2,6 +2,8 @@ package kh.sudokugrader;
 
 public class PuzzleDifficulty {
     
+    private boolean puzzleSolved;
+    
     //simple techniques count
     private int nakedSingleCount;
     private int hiddenSingleCount;
@@ -66,6 +68,14 @@ public class PuzzleDifficulty {
     }
     public void setxWingCount(int xWingCount) {
         this.xWingCount = xWingCount;
+    }
+
+    public boolean isPuzzleSolved() {
+        return puzzleSolved;
+    }
+
+    public void setPuzzleSolved(boolean puzzleSolved) {
+        this.puzzleSolved = puzzleSolved;
     }
     
 }

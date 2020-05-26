@@ -1,5 +1,7 @@
 package kh.sudokugrader;
 
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
 
 public class SudokuGraderWithSamplePuzzlesTest {
@@ -41,6 +43,18 @@ public class SudokuGraderWithSamplePuzzlesTest {
         {0,0,0,0,0,8,1,4,5}
     };
     
+    private int[][] sudokuGrid_hard1 = {    
+    {0,9,0,0,0,1,0,7,8},
+    {0,3,0,0,0,0,0,0,9},
+    {0,5,0,6,0,0,4,0,0},
+    {0,0,0,2,0,7,0,0,0},
+    {0,8,3,0,0,0,7,9,0},
+    {0,0,0,5,0,8,0,0,0},
+    {0,0,5,0,0,6,0,2,0},
+    {2,0,0,0,0,0,0,4,0},
+    {8,1,0,7,0,0,0,3,0}
+    };
+    
     
     /**
      * This easy puzzle can be solved with only naked singles., confirming therefore
@@ -51,10 +65,11 @@ public class SudokuGraderWithSamplePuzzlesTest {
         SudokuGraderApp app = new SudokuGraderApp();
         app.setSudokuGrid(this.sudokuGrid2_easy);
         app.populateSolutionGridWithStartingPosition();
-        app.gradePuzzle();
+        PuzzleDifficulty diffculty = app.gradePuzzle();
         app.printSolutionGridWithBorders();
         
         //TODO need asserts
+        assertTrue(diffculty.isPuzzleSolved());
     }
     
 
@@ -82,25 +97,42 @@ public class SudokuGraderWithSamplePuzzlesTest {
         SudokuGraderApp app = new SudokuGraderApp();
         app.setSudokuGrid(this.sudokuGrid1_easy);
         app.populateSolutionGridWithStartingPosition();
-        app.gradePuzzle();
+        PuzzleDifficulty diffculty = app.gradePuzzle();
         app.printSolutionGridWithBorders();
         
         //TODO need asserts
+        assertTrue(diffculty.isPuzzleSolved());
     }
     
     /**
-     * This medium difficulty example cannot be solved with only naked singles.
+     * Medium difficulty example cannot be solved with only naked/hidden singles.
+     * 
+     * Actual result: this puzzle can be solved with naked and hidden singles, therefore
+     * by this grading approach this is really a simple puzzle.
      */
     @Test
     public void testMedium1(){
         SudokuGraderApp app = new SudokuGraderApp();
         app.setSudokuGrid(this.sudokuGrid1_medium);
         app.populateSolutionGridWithStartingPosition();
-        app.gradePuzzle();
+        PuzzleDifficulty diffculty = app.gradePuzzle();
         app.printSolutionGridWithBorders();
         
         //TODO need asserts
+        assertTrue(diffculty.isPuzzleSolved());
     }
     
+    @Test
+    //TODO: bug - candidates from some cells are being completely removed with this puzzle
+    public void testHard1(){
+        SudokuGraderApp app = new SudokuGraderApp();
+        app.setSudokuGrid(this.sudokuGrid_hard1);
+        app.populateSolutionGridWithStartingPosition();
+        PuzzleDifficulty diffculty = app.gradePuzzle();
+        app.printSolutionGridWithBorders();
+        
+        //TODO need asserts
+        assertTrue(diffculty.isPuzzleSolved());
+    }
     
 }

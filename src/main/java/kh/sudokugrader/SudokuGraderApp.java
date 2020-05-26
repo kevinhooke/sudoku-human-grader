@@ -188,7 +188,7 @@ public class SudokuGraderApp {
      * - naked singles
      * - TODO
      */
-    void gradePuzzle() {
+    PuzzleDifficulty gradePuzzle() {
 
         int passesThroughGridCount = 0;
         PuzzleDifficulty difficulty = new PuzzleDifficulty();
@@ -200,33 +200,12 @@ public class SudokuGraderApp {
 
         // pass 2 - loop through individual cells and apply human solving techniques to determine complexity
         // continues until no more solutions are found
-        boolean solvedValuesOnAtLeastOnePass = true;
+        // repeat these steps twice to see if the earlier steps find any additional solutions after
+        // later approaches have run
+        //TODO: this should really use a boolean check like the innter loops
         boolean solutionFound = false;
-        
-        while (solvedValuesOnAtLeastOnePass) {
-            boolean replacedOnLastIteration = false;
-            for (int col = 0; col < 9; col++) {
-                for (int row = 0; row < 9; row++) {
-                    
-                    //TODO need to update difficulty here
-                    
-                    boolean solvedValuesThisPass = this.findNakedSinglesInCandidates(row, col);
-                    if (solvedValuesThisPass) {
-                        replacedOnLastIteration = solvedValuesThisPass;
-                    }
-                }
-                if (!replacedOnLastIteration) {
-                    solvedValuesOnAtLeastOnePass = false;
-                }
-            }
-            passesThroughGridCount++;
-            this.printSolutionGrid();
-        }
-        
-        //did we find a solution? if not try next approach
-        solutionFound = this.checkForCompleteSolution();
-        if(!solutionFound) {
-            solvedValuesOnAtLeastOnePass = true;
+        for(int outerSolverLoop = 0; outerSolverLoop < 2; outerSolverLoop++) {
+            boolean solvedValuesOnAtLeastOnePass = true;
             
             while (solvedValuesOnAtLeastOnePass) {
                 boolean replacedOnLastIteration = false;
@@ -235,7 +214,7 @@ public class SudokuGraderApp {
                         
                         //TODO need to update difficulty here
                         
-                        boolean solvedValuesThisPass = this.findHiddenSinglesInCandidates(row, col);
+                        boolean solvedValuesThisPass = this.findNakedSinglesInCandidates(row, col);
                         if (solvedValuesThisPass) {
                             replacedOnLastIteration = solvedValuesThisPass;
                         }
@@ -248,15 +227,45 @@ public class SudokuGraderApp {
                 this.printSolutionGrid();
             }
             
+            //did we find a solution? if not try next approach
+            solutionFound = this.checkForCompleteSolution();
+            if(!solutionFound) {
+                solvedValuesOnAtLeastOnePass = true;
+                
+                while (solvedValuesOnAtLeastOnePass) {
+                    boolean replacedOnLastIteration = false;
+                    for (int col = 0; col < 9; col++) {
+                        for (int row = 0; row < 9; row++) {
+                            
+                            //TODO need to update difficulty here
+                            
+                            boolean solvedValuesThisPass = this.findHiddenSinglesInCandidates(row, col);
+                            if (solvedValuesThisPass) {
+                                replacedOnLastIteration = solvedValuesThisPass;
+                            }
+                        }
+                        if (!replacedOnLastIteration) {
+                            solvedValuesOnAtLeastOnePass = false;
+                        }
+                    }
+                    passesThroughGridCount++;
+                    this.printSolutionGrid();
+                }
+                
+            }
         }
-
+        
         if(solutionFound) {
+            difficulty.setPuzzleSolved(true);
             System.out.println("Puzzle solved: Yes");
         }
         else {
+            difficulty.setPuzzleSolved(false);
             System.out.println("Puzzle solved: NO");
         }
         System.out.println("Passes through grid: " + passesThroughGridCount);
+        
+        return difficulty;
     }
 
     void populateCandidateValues() {
