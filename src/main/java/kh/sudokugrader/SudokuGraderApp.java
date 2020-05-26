@@ -26,23 +26,23 @@ public class SudokuGraderApp {
 
     // example grid to solve
     // 1
-    private int[][] startingSudokuGrid = { { 0, 0, 0, 8, 1, 0, 6, 7, 0 }, { 0, 0, 7, 4, 9, 0, 2, 0, 8 },
-            { 0, 6, 0, 0, 5, 0, 1, 0, 4 }, { 1, 0, 0, 0, 0, 3, 9, 0, 0 }, { 4, 0, 0, 0, 8, 0, 0, 0, 7 },
-            { 0, 0, 6, 9, 0, 0, 0, 0, 3 }, { 9, 0, 2, 0, 3, 0, 0, 6, 0 }, { 6, 0, 1, 0, 7, 4, 3, 0, 0 },
-            { 0, 3, 4, 0, 6, 9, 0, 0, 0 } };
+//    private int[][] startingSudokuGrid = { { 0, 0, 0, 8, 1, 0, 6, 7, 0 }, { 0, 0, 7, 4, 9, 0, 2, 0, 8 },
+//            { 0, 6, 0, 0, 5, 0, 1, 0, 4 }, { 1, 0, 0, 0, 0, 3, 9, 0, 0 }, { 4, 0, 0, 0, 8, 0, 0, 0, 7 },
+//            { 0, 0, 6, 9, 0, 0, 0, 0, 3 }, { 9, 0, 2, 0, 3, 0, 0, 6, 0 }, { 6, 0, 1, 0, 7, 4, 3, 0, 0 },
+//            { 0, 3, 4, 0, 6, 9, 0, 0, 0 } };
 
     // easy
-    // private int[][] startingSudokuGrid = {
-    // { 5, 0, 8, 4, 0, 0, 7, 0, 0 },
-    // { 0, 0, 0, 0, 0, 0, 8, 1, 9 },
-    // { 1, 0, 3, 0, 0, 6, 4, 0, 0 },
-    // { 8, 0, 0, 9, 1, 0, 0, 0, 3 },
-    // { 0, 0, 9, 0, 6, 0, 2, 0, 0 },
-    // { 6, 0, 0, 0, 8, 3, 0, 0, 4 },
-    // { 0, 0, 5, 6, 0, 0, 1, 0, 7 },
-    // { 9, 4, 6, 0, 0, 0, 0, 0, 0 },
-    // { 0, 0, 1, 0, 0, 9, 6, 0, 2 }
-    // };
+     private int[][] startingSudokuGrid = {
+     { 5, 0, 8, 4, 0, 0, 7, 0, 0 },
+     { 0, 0, 0, 0, 0, 0, 8, 1, 9 },
+     { 1, 0, 3, 0, 0, 6, 4, 0, 0 },
+     { 8, 0, 0, 9, 1, 0, 0, 0, 3 },
+     { 0, 0, 9, 0, 6, 0, 2, 0, 0 },
+     { 6, 0, 0, 0, 8, 3, 0, 0, 4 },
+     { 0, 0, 5, 6, 0, 0, 1, 0, 7 },
+     { 9, 4, 6, 0, 0, 0, 0, 0, 0 },
+     { 0, 0, 1, 0, 0, 9, 6, 0, 2 }
+     };
 
     // list (rows) of list of list of integers
     // eg { {1, 2, 3}, {1, 2, 3}, {1, 2, 3}, ... },
@@ -108,7 +108,7 @@ public class SudokuGraderApp {
         }
     }
 
-    private void printSolutionGrid() {
+    void printSolutionGrid() {
         for (List<List<Integer>> row : this.solutionGrid) {
             for (List<Integer> currentCell : row) {
                 // full cell pad to accomodate 0..9
@@ -194,19 +194,7 @@ public class SudokuGraderApp {
         PuzzleDifficulty difficulty = new PuzzleDifficulty();
 
         // pass 1 - loop through squares and populate empty cells with lists of all candidate values
-        for (int rowSquare = 0; rowSquare < 3; rowSquare++) {
-            for (int colSquare = 0; colSquare < 3; colSquare++) {
-                System.out.print("Square " + rowSquare + ", " + colSquare + ": ");
-                Set<Integer> singleValuesInSquare = this.getSingleValuesInSquare(rowSquare, colSquare);
-                this.printValuesSet(singleValuesInSquare);
-
-                Set<Integer> candidateValues = this.getCandidateValues(singleValuesInSquare);
-                System.out.print("Candidate values: ");
-                this.printValuesSet(candidateValues);
-                // insert candidate values into every blank cell in this square
-                this.updateValuesInSquare(rowSquare, colSquare, new ArrayList<Integer>(candidateValues));
-            }
-        }
+        this.populateCandidateValues();
 
         this.printSolutionGrid();
 
@@ -238,7 +226,7 @@ public class SudokuGraderApp {
         //did we find a solution? if not try next approach
         solutionFound = this.checkForCompleteSolution();
         if(!solutionFound) {
-            solvedValuesOnAtLeastOnePass = false;
+            solvedValuesOnAtLeastOnePass = true;
             
             while (solvedValuesOnAtLeastOnePass) {
                 boolean replacedOnLastIteration = false;
@@ -271,6 +259,22 @@ public class SudokuGraderApp {
         System.out.println("Passes through grid: " + passesThroughGridCount);
     }
 
+    void populateCandidateValues() {
+        for (int rowSquare = 0; rowSquare < 3; rowSquare++) {
+            for (int colSquare = 0; colSquare < 3; colSquare++) {
+                System.out.print("Square " + rowSquare + ", " + colSquare + ": ");
+                Set<Integer> singleValuesInSquare = this.getSingleValuesInSquare(rowSquare, colSquare);
+                this.printValuesSet(singleValuesInSquare);
+
+                Set<Integer> candidateValues = this.getCandidateValues(singleValuesInSquare);
+                System.out.print("Candidate values: ");
+                this.printValuesSet(candidateValues);
+                // insert candidate values into every blank cell in this square
+                this.updateValuesInSquare(rowSquare, colSquare, new ArrayList<Integer>(candidateValues));
+            }
+        }
+    }
+
     //TODO in progress
     private boolean findHiddenSinglesInCandidates(int row, int col) {
         boolean valuesReplaced = false;
@@ -278,47 +282,96 @@ public class SudokuGraderApp {
         // find hidden singles in square
         Set<Integer> hiddenSinglesInSquare = this.findHiddenSinglesSquareByRowCol(row, col);
         //remove other candidates in square
-
+        //TODO
         
         // find hidden singles in row
         Set<Integer> hiddenSinglesInRow = this.findHiddenSinglesInRow(row);
         //remove other candidates in row
-
+        this.removeOtherCandidatesInCellWhereHiddenSingleExists(row, col,hiddenSinglesInRow);
         
         // get hidden singles in col
         Set<Integer> hiddenSinglesInCol = this.findHiddenSinglesInColumn(col);
         //remove other candidates in col
-
-
-
-        List<Integer> valuesInCell = this.getValueInCell(row, col);
+        //TODO
         
-        // replace candidates in this cell if they appear as a hidden single in the same row, column or square,
-        // but only if this cell isn't a hidden single itself (todo: check this logic)
-        if (valuesInCell.size() > 1) {
-            boolean valuesReplacedInRow = valuesInCell.removeAll(hiddenSinglesInRow);
-            boolean valuesReplacedInCol = valuesInCell.removeAll(hiddenSinglesInCol);
-            boolean valuesReplacedInSquare = valuesInCell.removeAll(hiddenSinglesInSquare);
-
-            valuesReplaced = valuesReplacedInRow || valuesReplacedInCol || valuesReplacedInSquare;
-            if (valuesReplaced) {
-                List<List<Integer>> valuesInRow = this.getValuesInRow(row);
-                valuesInRow.set(col, valuesInCell);
-                this.solutionGrid.set(row, valuesInRow);
-            }
-        }
         return valuesReplaced;
     }
 
     
+    /**
+     * For each identified hidden single in this row, find the cell where each exists and remove the other candidates
+     * 
+     * @param hiddenSinglesInRow
+     */
+    void removeOtherCandidatesInCellWhereHiddenSingleExists(int row, int col, Set<Integer> hiddenSinglesInRow) {
+
+        List<List<Integer>> valuesInRow = this.getValuesInRow(row);
+
+        for (Integer value : hiddenSinglesInRow) {
+            int compareColumn = 0;
+            for(List<Integer> valuesInCell : valuesInRow) {
+                //if this cell contains this candidate, delete all other values and keep just this value
+                if(valuesInCell.contains(value)) {
+                    valuesInCell.clear();
+                    valuesInCell.add(value);
+                    valuesInRow.set(compareColumn, valuesInCell);
+                    this.solutionGrid.set(row, valuesInRow);
+                }
+                compareColumn++;
+            }
+        }
+    }
+
     Set<Integer> findHiddenSinglesInColumn(int col) {
         // TODO Auto-generated method stub
         return null;
     }
 
+    /**
+     * Finds hidden singles in current row. A hidden single is a single candidate
+     * value that only exists in a single cell and nowhere else in that
+     * current square/row/col.
+     * 
+     * @param row
+     * @return a list of found naked values in the candidates for this row
+     */
     Set<Integer> findHiddenSinglesInRow(int row) {
-        // TODO Auto-generated method stub
-        return null;
+        Set<Integer> hiddenSingles = new HashSet<Integer>();
+        List<List<Integer>> valuesInRow = this.getValuesInRow(row);
+        for (int col = 0; col < 9; col++) {
+            List<Integer> valuesInCol = valuesInRow.get(col);
+            
+            //if this cell only contains a single value then skip because this could be a naked single and we'll check it
+            //using the nakend singles approaach
+            if(valuesInCol.size() > 1 ) {
+            //for each of the candidate values in a cell, check if they exist in any of the other
+            //cells - if they don't then this is a naked single
+            for(Integer currentValueInCol : valuesInCol) {
+              //does this current value exist in any of the other columns?
+                //exclude the current column
+                int colToCompare = 0;
+                
+                //TODO: this loop is the same for checking each candidate and can be moved outside this loop
+                List<Integer> candidatesInAllColsInrow = new ArrayList<>();
+                for(List<Integer> candidatesInCol : valuesInRow) {
+                    
+                    //if we're not comparing the same cell and if this cell contains more than a single value 
+                    //(which would be a naked single)
+                    if(colToCompare != col && candidatesInCol.size() > 1) {
+                        candidatesInAllColsInrow.addAll(candidatesInCol);
+                    }
+                    colToCompare++;
+                }
+                //if current value does not exist in any of the other cells in this row, save it
+                if (!candidatesInAllColsInrow.contains(currentValueInCol)) {
+                    hiddenSingles.add(currentValueInCol);
+                }
+
+            }
+            }
+        }
+        
+        return hiddenSingles;
     }
 
     Set<Integer> findHiddenSinglesSquareByRowCol(int row, int col) {

@@ -204,20 +204,39 @@ public class SudokuGraderAppTest {
 	}
 
 	@Test
-    public void testFindHiddenSinglesInRow(){
+    public void testFindHiddenSinglesInRow_0(){
 	    
 	    //TODO
         Set<Integer> expectedValues = new HashSet<>();
-        expectedValues.add(3);
         expectedValues.add(4);
-        expectedValues.add(6);
-        expectedValues.add(9);
-        this.app.populateSolutionGridWithStartingPosition();
         
-        Set<Integer> values = this.app.findHiddenSinglesInRow(1);
+        SudokuGraderApp app = new SudokuGraderApp();
+        app.setSudokuGrid(this.sudokuGrid);
+        app.populateSolutionGridWithStartingPosition();
+        app.populateCandidateValues();
+        app.printSolutionGrid();
+        Set<Integer> values = app.findHiddenSinglesInRow(0);
         
+        assertTrue(values.size() == 1);
         assertTrue(values.containsAll(expectedValues));
-
 	}
 	
+	   @Test
+	    public void testFindHiddenSinglesInRow_1(){
+	        
+	        //TODO
+	        Set<Integer> expectedValues = new HashSet<>();
+	        expectedValues.add(1);
+	        
+	        SudokuGraderApp app = new SudokuGraderApp();
+	        app.setSudokuGrid(this.sudokuGrid);
+	        app.populateSolutionGridWithStartingPosition();
+	        app.populateCandidateValues();
+	        app.printSolutionGrid();
+	        Set<Integer> values = app.findHiddenSinglesInRow(1);
+	        
+	        assertTrue(values.size() == 1);
+            assertTrue(values.containsAll(expectedValues));
+
+	   }
 }
