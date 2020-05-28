@@ -50,6 +50,9 @@ public class SudokuGraderApp {
     // ... }
     private List<List<List<Integer>>> solutionGrid = new ArrayList<>();
 
+    
+    private PuzzleDifficulty difficulty = new PuzzleDifficulty();
+    
     /**
      * Default constructor.
      */
@@ -109,6 +112,7 @@ public class SudokuGraderApp {
     }
 
     void printSolutionGrid() {
+        System.out.println("Current candidates: ");
         for (List<List<Integer>> row : this.solutionGrid) {
             for (List<Integer> currentCell : row) {
                 // full cell pad to accomodate 0..9
@@ -129,7 +133,7 @@ public class SudokuGraderApp {
             }
             System.out.println();
         }
-
+        System.out.println();
     }
 
     void printSolutionGridWithBorders() {
@@ -191,7 +195,6 @@ public class SudokuGraderApp {
     PuzzleDifficulty gradePuzzle() {
 
         int passesThroughGridCount = 0;
-        PuzzleDifficulty difficulty = new PuzzleDifficulty();
 
         // pass 1 - loop through squares and populate empty cells with lists of all candidate values
         this.populateCandidateValues();
@@ -203,7 +206,7 @@ public class SudokuGraderApp {
         // repeat these steps twice to see if the earlier steps find any additional solutions after
         // later approaches have run
         //TODO: this should really use a boolean check like the innter loops
-        boolean solutionFound = false;
+        int unsolvedCells = 0;
         for(int outerSolverLoop = 0; outerSolverLoop < 2; outerSolverLoop++) {
             boolean solvedValuesOnAtLeastOnePass = true;
             
@@ -228,8 +231,8 @@ public class SudokuGraderApp {
             }
             
             //did we find a solution? if not try next approach
-            solutionFound = this.checkForCompleteSolution();
-            if(!solutionFound) {
+            unsolvedCells = this.checkForCompleteSolution();
+            if(unsolvedCells > 0) {
                 solvedValuesOnAtLeastOnePass = true;
                 
                 while (solvedValuesOnAtLeastOnePass) {
@@ -255,15 +258,17 @@ public class SudokuGraderApp {
             }
         }
         
-        if(solutionFound) {
-            difficulty.setPuzzleSolved(true);
-            System.out.println("Puzzle solved: Yes");
-        }
-        else {
-            difficulty.setPuzzleSolved(false);
+        if(unsolvedCells > 0) {
+            this.difficulty.setPuzzleSolved(false);
             System.out.println("Puzzle solved: NO");
         }
+        else {
+            this.difficulty.setPuzzleSolved(true);
+            System.out.println("Puzzle solved: Yes");
+        }
         System.out.println("Passes through grid: " + passesThroughGridCount);
+        System.out.println("Naked singles found: " + this.difficulty.getNakedSingleCount());
+        System.out.println("Hidden singles found: " + this.difficulty.getHiddenSingleCount());
         
         return difficulty;
     }
@@ -395,7 +400,7 @@ public class SudokuGraderApp {
      * 
      * @return
      */
-    private boolean checkForCompleteSolution() {
+    private int checkForCompleteSolution() {
         boolean solutionFound = true;
         int numberOfUnsolvedCells = 0;
         
@@ -413,7 +418,7 @@ public class SudokuGraderApp {
         System.out.println("Unsolved cells: " + numberOfUnsolvedCells);
 
         
-        return solutionFound;
+        return numberOfUnsolvedCells;
     }
 
     /**
@@ -428,7 +433,8 @@ public class SudokuGraderApp {
      */
     private boolean findNakedSinglesInCandidates(int row, int col) {
         boolean valuesReplaced = false;
-
+        int startingUnsolvedCells = this.checkForCompleteSolution();
+        
         Set<Integer> singleValuesInRow = this.findSingleValuesInRow(row);
         Set<Integer> singleValuesInCol = this.findSingleValuesInColumn(col);
         Set<Integer> singleValuesInSquare = this.findSingleValuesInSquareByRowCol(row, col);
@@ -448,6 +454,10 @@ public class SudokuGraderApp {
                 this.solutionGrid.set(row, valuesInRow);
             }
         }
+        
+        int endUnsolvedCells = this.checkForCompleteSolution();
+        this.difficulty.setNakedSingleCount(this.difficulty.getNakedSingleCount() 
+                + (startingUnsolvedCells - endUnsolvedCells));
         return valuesReplaced;
     }
 
