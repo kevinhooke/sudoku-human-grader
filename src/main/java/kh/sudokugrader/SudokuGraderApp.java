@@ -31,7 +31,7 @@ public class SudokuGraderApp {
 //            { 0, 0, 6, 9, 0, 0, 0, 0, 3 }, { 9, 0, 2, 0, 3, 0, 0, 6, 0 }, { 6, 0, 1, 0, 7, 4, 3, 0, 0 },
 //            { 0, 3, 4, 0, 6, 9, 0, 0, 0 } };
 
-    // easy
+
      private int[][] startingSudokuGrid = {
      { 5, 0, 8, 4, 0, 0, 7, 0, 0 },
      { 0, 0, 0, 0, 0, 0, 8, 1, 9 },
@@ -205,7 +205,7 @@ public class SudokuGraderApp {
         // continues until no more solutions are found
         // repeat these steps twice to see if the earlier steps find any additional solutions after
         // later approaches have run
-        //TODO: this should really use a boolean check like the innter loops
+        //TODO: this should really use a boolean check like the inner loops
         int unsolvedCells = 0;
         for(int outerSolverLoop = 0; outerSolverLoop < 2; outerSolverLoop++) {
             boolean solvedValuesOnAtLeastOnePass = true;
@@ -216,7 +216,7 @@ public class SudokuGraderApp {
                     for (int row = 0; row < 9; row++) {
                         
                         //TODO need to update difficulty here
-                        
+                        //TODO: 2nd pass through hard puzzle example gets blank cells on row 4
                         boolean solvedValuesThisPass = this.findNakedSinglesInCandidates(row, col);
                         if (solvedValuesThisPass) {
                             replacedOnLastIteration = solvedValuesThisPass;
@@ -356,32 +356,32 @@ public class SudokuGraderApp {
             List<Integer> valuesInCol = valuesInRow.get(col);
             
             //if this cell only contains a single value then skip because this could be a naked single and we'll check it
-            //using the nakend singles approaach
+            //using the nakend singles approach
             if(valuesInCol.size() > 1 ) {
-            //for each of the candidate values in a cell, check if they exist in any of the other
-            //cells - if they don't then this is a naked single
-            for(Integer currentValueInCol : valuesInCol) {
-              //does this current value exist in any of the other columns?
-                //exclude the current column
-                int colToCompare = 0;
-                
-                //TODO: this loop is the same for checking each candidate and can be moved outside this loop
-                List<Integer> candidatesInAllColsInrow = new ArrayList<>();
-                for(List<Integer> candidatesInCol : valuesInRow) {
+                //for each of the candidate values in a cell, check if they exist in any of the other
+                //cells - if they don't then this is a naked single
+                for(Integer currentValueInCol : valuesInCol) {
+                  //does this current value exist in any of the other columns?
+                    //exclude the current column
+                    int colToCompare = 0;
                     
-                    //if we're not comparing the same cell and if this cell contains more than a single value 
-                    //(which would be a naked single)
-                    if(colToCompare != col && candidatesInCol.size() > 1) {
-                        candidatesInAllColsInrow.addAll(candidatesInCol);
+                    //TODO: this loop is the same for checking each candidate and can be moved outside this loop
+                    List<Integer> candidatesInAllColsInrow = new ArrayList<>();
+                    for(List<Integer> candidatesInCol : valuesInRow) {
+                        
+                        //if we're not comparing the same cell and if this cell contains more than a single value 
+                        //(which would be a naked single)
+                        if(colToCompare != col) {
+                            candidatesInAllColsInrow.addAll(candidatesInCol);
+                        }
+                        colToCompare++;
                     }
-                    colToCompare++;
+                    //if current value does not exist in any of the other cells in this row, save it
+                    if (!candidatesInAllColsInrow.contains(currentValueInCol)) {
+                        hiddenSingles.add(currentValueInCol);
+                    }
+    
                 }
-                //if current value does not exist in any of the other cells in this row, save it
-                if (!candidatesInAllColsInrow.contains(currentValueInCol)) {
-                    hiddenSingles.add(currentValueInCol);
-                }
-
-            }
             }
         }
         
@@ -645,7 +645,16 @@ public class SudokuGraderApp {
         missingValues.removeAll(currentValues);
         return missingValues;
     }
-
+    
+    /**
+     * Sets a rows in the solution grid, to support unit tests/
+     * @param row
+     * @param newValues
+     */
+    void setRowInSolutionGrid(int row, List<List<Integer>> newValues) {
+        this.solutionGrid.set(row, newValues);
+    }
+    
     public int[][] getSudokuGrid() {
         return startingSudokuGrid;
     }

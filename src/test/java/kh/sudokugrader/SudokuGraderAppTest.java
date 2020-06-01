@@ -3,7 +3,10 @@ package kh.sudokugrader;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.junit.Test;
@@ -239,4 +242,37 @@ public class SudokuGraderAppTest {
             assertTrue(values.containsAll(expectedValues));
 
 	   }
+	   
+	    /**
+	     * Test for issue with blank cells seems to start with a row like this:
+	     * 
+	     * [[7], [5], [2, 8], [6], [8, 9], [9], [4], [1], [3]]
+	     * Set<Integer> hiddenSinglesInRow = this.findHiddenSinglesInRow(row);
+	     * 
+	     * Before fix: returns wrong result: 2, 9
+	     * Expected result: 2
+	     */
+	    @Test
+	    public void testfindHiddenSinglesInRow_wrongResult() {
+	        SudokuGraderApp app = new SudokuGraderApp();
+	        app.populateSolutionGridWithStartingPosition();
+	        
+	        List<List<Integer>> testRow = new ArrayList<>();
+	        testRow.add(Arrays.asList(7));
+	        testRow.add(Arrays.asList(5));
+	        testRow.add(Arrays.asList(2, 8));
+	        testRow.add(Arrays.asList(6));
+	        testRow.add(Arrays.asList(8, 9));
+	        testRow.add(Arrays.asList(9));
+	        testRow.add(Arrays.asList(4));
+	        testRow.add(Arrays.asList(1));
+	        testRow.add(Arrays.asList(3));
+	        app.setRowInSolutionGrid(2, testRow);
+	        Set<Integer> hiddenSinglesInRow = app.findHiddenSinglesInRow(2);
+	        
+	        assertTrue(hiddenSinglesInRow.size() == 1);
+	        assertTrue(hiddenSinglesInRow.contains(2));
+	    }
+
+	   
 }

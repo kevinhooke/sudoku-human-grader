@@ -2,6 +2,11 @@ package kh.sudokugrader;
 
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+
 import org.junit.Test;
 
 public class SudokuGraderWithSamplePuzzlesTest {
@@ -19,6 +24,7 @@ public class SudokuGraderWithSamplePuzzlesTest {
             {0,3,4,0,6,9,0,0,0}
     };
     
+    //TODO need another easy example, this one is the same as example 1
     private int[][] sudokuGrid2_easy = {
         {0,0,0,8,1,0,6,7,0}, 
         {0,0,7,4,9,0,2,0,8},
@@ -134,5 +140,5 @@ public class SudokuGraderWithSamplePuzzlesTest {
         //TODO need asserts
         assertTrue(diffculty.isPuzzleSolved());
     }
-    
+        
 }
