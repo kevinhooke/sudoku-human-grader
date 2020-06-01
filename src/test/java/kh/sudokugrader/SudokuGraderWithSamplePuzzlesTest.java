@@ -69,7 +69,7 @@ public class SudokuGraderWithSamplePuzzlesTest {
     @Test
     public void testEasy1(){
         SudokuGraderApp app = new SudokuGraderApp();
-        app.setSudokuGrid(this.sudokuGrid2_easy);
+        app.setSudokuGrid(this.sudokuGrid1_easy);
         app.populateSolutionGridWithStartingPosition();
         PuzzleDifficulty diffculty = app.gradePuzzle();
         app.printSolutionGridWithBorders();
@@ -101,7 +101,7 @@ public class SudokuGraderWithSamplePuzzlesTest {
     @Test
     public void testEasy2(){
         SudokuGraderApp app = new SudokuGraderApp();
-        app.setSudokuGrid(this.sudokuGrid1_easy);
+        app.setSudokuGrid(this.sudokuGrid2_easy);
         app.populateSolutionGridWithStartingPosition();
         PuzzleDifficulty diffculty = app.gradePuzzle();
         app.printSolutionGridWithBorders();

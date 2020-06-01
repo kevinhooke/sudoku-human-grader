@@ -350,6 +350,7 @@ public class SudokuGraderApp {
      * @return a list of found naked values in the candidates for this row
      */
     Set<Integer> findHiddenSinglesInRow(int row) {
+        int startingUnsolvedCells = this.checkForCompleteSolution();
         Set<Integer> hiddenSingles = new HashSet<Integer>();
         List<List<Integer>> valuesInRow = this.getValuesInRow(row);
         for (int col = 0; col < 9; col++) {
@@ -384,6 +385,10 @@ public class SudokuGraderApp {
                 }
             }
         }
+        int endUnsolvedCells = this.checkForCompleteSolution();
+        
+        this.difficulty.setHiddenSingleCount(this.difficulty.getNakedSingleCount() 
+                + (startingUnsolvedCells - endUnsolvedCells));
         
         return hiddenSingles;
     }
