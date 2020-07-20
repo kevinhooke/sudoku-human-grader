@@ -191,6 +191,7 @@ public class SudokuGraderApp {
      * 
      * Counts:
      * - naked singles
+     * - hidden singles
      * - TODO
      */
     PuzzleDifficulty gradePuzzle() {
@@ -207,8 +208,10 @@ public class SudokuGraderApp {
         // repeat these steps twice to see if the earlier steps find any additional solutions after
         // later approaches have run
         //TODO: this should really use a boolean check like the inner loops
+        //Note: some easy puzzles can be solved with only 1 or 2 passes, some take 3 or more
+        //TODO: revisit number of passes for harder puzzles
         int unsolvedCells = 0;
-        for(int outerSolverLoop = 0; outerSolverLoop < 2; outerSolverLoop++) {
+        for(int outerSolverLoop = 0; outerSolverLoop < 3; outerSolverLoop++) {
             boolean solvedValuesOnAtLeastOnePass = true;
             
             while (solvedValuesOnAtLeastOnePass) {

@@ -112,6 +112,8 @@ public class SudokuGraderWithSamplePuzzlesTest {
      * Passes through grid: 7
      * Naked singles found: 42
      * Hidden singles found: 0
+     * 
+     * TODO: how many outer loop parses does this puzzle need to find a solution?
      */
     @Test
     public void testEasy1(){
@@ -135,6 +137,8 @@ public class SudokuGraderWithSamplePuzzlesTest {
      * Passes through grid: 5
      * Naked singles found: 36
      * Hidden singles found: 0
+     * 
+     * TODO: how many outer loop parses does this puzzle need to find a solution?
      */
     @Test
     public void testEasy2(){
@@ -149,9 +153,9 @@ public class SudokuGraderWithSamplePuzzlesTest {
     }
     
     /**
-     * THis east puzzle from The Guardian does not currently solve.
-     * TODO: looks like I didn't apply the patterns across columns yet, which is interesting as that means
-     * apply techniques across rows only has been sufficient so far.
+     * Easy puzzle from The Guardian.
+     * 
+     * Requires 3 outer loop iterations to solve (other easy puzzles so far only needed 2.
      */
     @Test
     public void testEasy3(){
@@ -187,7 +191,6 @@ public class SudokuGraderWithSamplePuzzlesTest {
     }
     
     @Test
-    //TODO: bug - candidates from some cells are being completely removed with this puzzle
     public void testHard1(){
         SudokuGraderApp app = new SudokuGraderApp();
         app.setSudokuGrid(this.sudokuGrid_hard1);
