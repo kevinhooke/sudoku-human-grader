@@ -176,6 +176,7 @@ public class SudokuGraderApp {
                 // solving
                 if (value > 0) {
                     currentCellPossibleNumberList.add(value);
+                    this.difficulty.incrementInitialGivens();
                 }
                 currentRow.add(currentCellPossibleNumberList);
             }
@@ -266,6 +267,7 @@ public class SudokuGraderApp {
             this.difficulty.setPuzzleSolved(true);
             System.out.println("Puzzle solved: Yes");
         }
+        System.out.println("Initial givens: " + this.difficulty.getInitialGivens());
         System.out.println("Passes through grid: " + passesThroughGridCount);
         System.out.println("Naked singles found: " + this.difficulty.getNakedSingleCount());
         System.out.println("Hidden singles found: " + this.difficulty.getHiddenSingleCount());

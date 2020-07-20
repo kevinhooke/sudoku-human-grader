@@ -11,8 +11,10 @@ import org.junit.Test;
 
 public class SudokuGraderWithSamplePuzzlesTest {
 
-    
-    private int[][] sudokuGrid1_easy = {
+    /**
+     * Easy rated puzzle from https://www.websudoku.com
+     */
+    private int[][] sudokuGrid_easy1 = {
             {0,0,0,8,1,0,6,7,0},
             {0,0,7,4,9,0,2,0,8},
             {0,6,0,0,5,0,1,0,4},
@@ -24,20 +26,28 @@ public class SudokuGraderWithSamplePuzzlesTest {
             {0,3,4,0,6,9,0,0,0}
     };
     
-    //TODO need another easy example, this one is the same as example 1
-    private int[][] sudokuGrid2_easy = {
-        {0,0,0,8,1,0,6,7,0}, 
-        {0,0,7,4,9,0,2,0,8},
-        {0,6,0,0,5,0,1,0,4},
-        {1,0,0,0,0,3,9,0,0},
-        {4,0,0,0,8,0,0,0,7},
-        {0,0,6,9,0,0,0,0,3},
-        {9,0,2,0,3,0,0,6,0},
-        {6,0,1,0,7,4,3,0,0},
-        {0,3,4,0,6,9,0,0,0}
+    /**
+     * Easy puzzle from http://www.websudoku.com/?level=1&set_id=7605607374
+     */
+    private int[][] sudokuGrid_easy2 = {
+        {0,8,9,0,0,0,2,0,0}, 
+        {7,0,5,3,9,0,4,6,0},
+        {0,0,0,8,0,0,6,5,9},
+        
+        {0,0,2,0,0,9,6,0,0},
+        {6,0,0,5,4,1,0,0,2},
+        {0,0,3,2,0,0,9,0,0},
+        
+        {9,3,0,0,0,8,0,0,0},
+        {0,6,4,0,5,7,8,0,3},
+        {0,0,1,0,0,0,7,4,0},
+        
     };
     
-    private int[][] sudokuGrid1_medium = {
+    /**
+     * Medium rated puzzle from https://www.websudoku.com
+     */
+    private int[][] sudokuGrid_medium1 = {
         {5,6,8,9,0,0,0,0,0},
         {0,0,0,0,0,0,4,0,0},
         {0,4,3,0,7,5,8,0,0},
@@ -49,6 +59,9 @@ public class SudokuGraderWithSamplePuzzlesTest {
         {0,0,0,0,0,8,1,4,5}
     };
     
+    /**
+     * Hard rated puzzle from https://www.websudoku.com
+     */
     private int[][] sudokuGrid_hard1 = {    
     {0,9,0,0,0,1,0,7,8},
     {0,3,0,0,0,0,0,0,9},
@@ -61,15 +74,49 @@ public class SudokuGraderWithSamplePuzzlesTest {
     {8,1,0,7,0,0,0,3,0}
     };
     
+    private int[][] sudokuGrid_hardFromReddit1 = {  
+    {0,0,3,0,0,5,0,0,9},
+    {9,0,0,2,0,0,0,6,0},
+    {0,8,0,0,4,0,7,0,0},
+    {0,0,7,0,0,0,0,0,2},
+    {0,2,0,0,0,0,1,0,0},
+    {6,0,0,0,0,0,0,7,0},
+    {0,4,0,0,8,0,6,0,0},
+    {0,0,0,1,0,0,0,5,0},
+    {0,0,9,0,0,7,0,0,3}
+    };
+    
     
     /**
-     * This easy puzzle can be solved with only naked singles., confirming therefore
+     * From The Guardian, Easy 07/13/20 
+     * https://www.theguardian.com/lifeandstyle/2020/jul/13/sudoku-4883-easy
+     */
+    private int[][] sudokuGrid_easy3 = {  
+            {0,0,1,0,2,0,0,0,4},
+            {0,6,0,0,0,0,0,0,0},
+            {8,4,0,1,0,0,3,0,0},
+            {0,0,0,0,3,0,0,9,0},
+            {0,8,5,9,0,7,2,6,0},
+            {0,1,0,0,8,0,0,0,0},
+            {0,0,8,0,0,4,0,5,1},
+            {0,0,0,0,0,0,0,4,0},
+            {2,0,0,0,7,0,6,0,0}
+            };
+    
+    /**
+     * This easy puzzle can be solved with only naked singles, confirming therefore
      * difficult = easy.
+     * 
+     * Puzzle solved: Yes
+     * Initial givens: 35
+     * Passes through grid: 7
+     * Naked singles found: 42
+     * Hidden singles found: 0
      */
     @Test
     public void testEasy1(){
         SudokuGraderApp app = new SudokuGraderApp();
-        app.setSudokuGrid(this.sudokuGrid1_easy);
+        app.setSudokuGrid(this.sudokuGrid_easy1);
         app.populateSolutionGridWithStartingPosition();
         PuzzleDifficulty diffculty = app.gradePuzzle();
         app.printSolutionGridWithBorders();
@@ -80,28 +127,19 @@ public class SudokuGraderWithSamplePuzzlesTest {
     
 
     /**
-     * This easy puzzle can be solved with only naked singles., confirming therefore
+     * This easy puzzle can be solved with only naked singles, confirming therefore
      * difficult = easy.
      * 
-     * Result from DLX Solver:
-+-------+-------+-------+
-| 3 4 9 | 8 1 2 | 6 7 5 | 
-| 5 1 7 | 4 9 6 | 2 3 8 | 
-| 2 6 8 | 3 5 7 | 1 9 4 | 
-+-------+-------+-------+
-| 1 8 5 | 7 2 3 | 9 4 6 | 
-| 4 9 3 | 6 8 1 | 5 2 7 | 
-| 7 2 6 | 9 4 5 | 8 1 3 | 
-+-------+-------+-------+
-| 9 7 2 | 5 3 8 | 4 6 1 | 
-| 6 5 1 | 2 7 4 | 3 8 9 | 
-| 8 3 4 | 1 6 9 | 7 5 2 | 
-+-------+-------+-------+
+     * Puzzle solved: Yes
+     * Initial givens: 36
+     * Passes through grid: 5
+     * Naked singles found: 36
+     * Hidden singles found: 0
      */
     @Test
     public void testEasy2(){
         SudokuGraderApp app = new SudokuGraderApp();
-        app.setSudokuGrid(this.sudokuGrid2_easy);
+        app.setSudokuGrid(this.sudokuGrid_easy2);
         app.populateSolutionGridWithStartingPosition();
         PuzzleDifficulty diffculty = app.gradePuzzle();
         app.printSolutionGridWithBorders();
@@ -111,15 +149,35 @@ public class SudokuGraderWithSamplePuzzlesTest {
     }
     
     /**
-     * Medium difficulty example cannot be solved with only naked/hidden singles.
+     * THis east puzzle from The Guardian does not currently solve.
+     * TODO: looks like I didn't apply the patterns across columns yet, which is interesting as that means
+     * apply techniques across rows only has been sufficient so far.
+     */
+    @Test
+    public void testEasy3(){
+        SudokuGraderApp app = new SudokuGraderApp();
+        app.setSudokuGrid(this.sudokuGrid_easy3);
+        app.populateSolutionGridWithStartingPosition();
+        PuzzleDifficulty diffculty = app.gradePuzzle();
+        app.printSolutionGridWithBorders();
+        
+        //TODO need asserts
+        assertTrue(diffculty.isPuzzleSolved());
+    }
+    
+    
+    /**
+     * Medium difficulty example from https://www.websudoku.com
      * 
-     * Actual result: this puzzle can be solved with naked and hidden singles, therefore
+     * This puzzle cannot be solved with only naked/hidden singles.
+     * 
+     * This puzzle can be solved with naked and hidden singles, therefore
      * by this grading approach this is really a simple puzzle.
      */
     @Test
     public void testMedium1(){
         SudokuGraderApp app = new SudokuGraderApp();
-        app.setSudokuGrid(this.sudokuGrid1_medium);
+        app.setSudokuGrid(this.sudokuGrid_medium1);
         app.populateSolutionGridWithStartingPosition();
         PuzzleDifficulty diffculty = app.gradePuzzle();
         app.printSolutionGridWithBorders();
@@ -141,4 +199,18 @@ public class SudokuGraderWithSamplePuzzlesTest {
         assertTrue(diffculty.isPuzzleSolved());
     }
         
+    @Test
+    //TODO: bug - candidates from some cells are being completely removed with this puzzle
+    public void testHardFromReddit(){
+        SudokuGraderApp app = new SudokuGraderApp();
+        app.setSudokuGrid(this.sudokuGrid_hardFromReddit1);
+        app.populateSolutionGridWithStartingPosition();
+        PuzzleDifficulty diffculty = app.gradePuzzle();
+        app.printSolutionGridWithBorders();
+        
+        //TODO need asserts
+        assertTrue(diffculty.isPuzzleSolved());
+    }
+    
+    
 }

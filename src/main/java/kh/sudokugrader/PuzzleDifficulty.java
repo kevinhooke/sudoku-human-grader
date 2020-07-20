@@ -4,6 +4,8 @@ public class PuzzleDifficulty {
     
     private boolean puzzleSolved;
     
+    private int initialGivens;
+    
     //simple techniques count
     private int nakedSingleCount;
     private int hiddenSingleCount;
@@ -76,6 +78,18 @@ public class PuzzleDifficulty {
 
     public void setPuzzleSolved(boolean puzzleSolved) {
         this.puzzleSolved = puzzleSolved;
+    }
+
+    public int getInitialGivens() {
+        return initialGivens;
+    }
+
+    public void setInitialGivens(int initialGivens) {
+        this.initialGivens = initialGivens;
+    }
+    
+    public void incrementInitialGivens() {
+        this.initialGivens++;
     }
     
 }
