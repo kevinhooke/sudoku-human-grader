@@ -155,7 +155,17 @@ public class SudokuGraderWithSamplePuzzlesTest {
     /**
      * Easy puzzle from The Guardian.
      * 
+     * Techniques to solve:
+     * - naked singles
+     * - hidden singles
+     * 
      * Requires 3 outer loop iterations to solve (other easy puzzles so far only needed 2.
+     * 
+     * Puzzle solved: Yes
+     * Initial givens: 26
+     * Passes through grid: 12
+     * Naked singles found: 44
+     * Hidden singles found: 34
      */
     @Test
     public void testEasy3(){
