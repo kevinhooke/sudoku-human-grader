@@ -1,5 +1,7 @@
 package kh.sudokugrader;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -26,6 +28,18 @@ public class SudokuGraderAppTest {
 			{6,0,1,0,7,4,3,0,0},
 			{0,3,4,0,6,9,0,0,0}
 	};
+	
+    private int[][] expectedResult1 = {
+            {1,2,3,4,5,6,7,8,9},
+            {0,0,0,0,0,0,0,0,0},
+            {0,0,0,0,0,0,0,0,0},
+            {0,0,0,0,0,0,0,0,0},
+            {0,0,0,0,0,0,0,0,0},
+            {0,0,0,0,0,0,0,0,0},
+            {0,0,0,0,0,0,0,0,0},
+            {0,0,0,0,0,0,0,0,0},
+            {0,0,0,0,0,0,0,0,0},
+        };
 	
 	public SudokuGraderAppTest() {
 		app.setSudokuGrid(this.sudokuGrid);
@@ -274,5 +288,24 @@ public class SudokuGraderAppTest {
 	        assertTrue(hiddenSinglesInRow.contains(2));
 	    }
 
-	   
+	   @Test
+	   public void testsetSudokuGridWithSolutionShorthand1() {
+	       List<String> givenSolutionsShorthand = new ArrayList<>();
+	        givenSolutionsShorthand.add("123456789");
+	        givenSolutionsShorthand.add(".........");
+	        givenSolutionsShorthand.add(".........");
+	        givenSolutionsShorthand.add(".........");
+	        givenSolutionsShorthand.add(".........");
+	        givenSolutionsShorthand.add(".........");
+	        givenSolutionsShorthand.add(".........");
+	        givenSolutionsShorthand.add(".........");
+	        givenSolutionsShorthand.add(".........");
+	        
+	        SudokuGraderApp app = new SudokuGraderApp();
+	        app.setSudokuGridWithSolutionShorthand(givenSolutionsShorthand);
+	        int[][] solutionGrid = app.getSudokuGrid();
+	        assertArrayEquals(expectedResult1, solutionGrid);
+	        
+	        
+	   }
 }

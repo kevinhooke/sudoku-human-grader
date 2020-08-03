@@ -673,5 +673,25 @@ public class SudokuGraderApp {
         this.startingSudokuGrid = sudokuGrid;
     }
 
+    public void setSudokuGridWithSolutionShorthand(List<String> solutionShorthand) {
+        int[][] startingGrid = new int[9][9];
+        int rowIndex = 0;
+        int colIndex = 0;
+        for(String row : solutionShorthand) {
+            for(String cellInRow : row.split("")) {
+                if(cellInRow.equals(".")) {
+                    startingGrid[rowIndex][colIndex] = 0;
+                }
+                else {
+                    int value = Integer.parseInt(cellInRow);
+                    startingGrid[rowIndex][colIndex] = value;
+                }
+                colIndex++;
+            }
+            rowIndex++;
+            colIndex = 0;
+        }
+        this.setSudokuGrid(startingGrid);
+    }
 
 }
