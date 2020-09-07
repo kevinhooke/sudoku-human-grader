@@ -41,6 +41,25 @@ public class SudokuGraderAppTest {
             {0,0,0,0,0,0,0,0,0},
         };
 	
+/*
+ * This puzzle was generated with 60 removed candidates. Human solver/grader can't currently
+ * solve this one. The DLX Solver can solve it ok.
++-------+-------+-------+
+| . . . | 9 . . | 4 . . | 
+| . . 1 | 7 . . | 8 2 . | 
+| . . . | . . 8 | 3 . . | 
++-------+-------+-------+
+| . . 8 | . . . | . . . | 
+| . . . | . . . | . . 8 | 
+| . . . | 8 . 4 | . . . | 
++-------+-------+-------+
+| . . 6 | . . . | 5 . . | 
+| 5 . 2 | 4 . . | . . . | 
+| . . 4 | . 5 7 | 9 . . | 
++-------+-------+-------+
+ *     
+ */
+    
 	public SudokuGraderAppTest() {
 		app.setSudokuGrid(this.sudokuGrid);
 	}
