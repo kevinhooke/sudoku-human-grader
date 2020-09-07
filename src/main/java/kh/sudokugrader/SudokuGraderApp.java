@@ -9,6 +9,8 @@ import java.util.Set;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
+import kh.sudokugrader.exception.SolutionGridNotInitializedException;
+
 /**
  * Sudoku grader.
  * 
@@ -163,7 +165,7 @@ public class SudokuGraderApp {
         System.out.println("+-------+-------+-------+");
     }
 
-    void populateSolutionGridWithStartingPosition() {
+    public void populateSolutionGridWithStartingPosition() {
         for (int row = 0; row < 9; row++) {
             List<List<Integer>> currentRow = new ArrayList<>();
 
@@ -194,8 +196,13 @@ public class SudokuGraderApp {
      * - hidden singles
      * - TODO
      */
-    PuzzleDifficulty gradePuzzle() {
+    public PuzzleDifficulty gradePuzzle() {
 
+        //check starting grid was initialized
+        if(this.solutionGrid == null || this.solutionGrid.size() == 0) {
+            throw new SolutionGridNotInitializedException();
+        }
+        
         int passesThroughGridCount = 0;
 
         // pass 1 - loop through squares and populate empty cells with lists of all candidate values
@@ -270,6 +277,9 @@ public class SudokuGraderApp {
             this.difficulty.setPuzzleSolved(true);
             System.out.println("Puzzle solved: Yes");
         }
+        
+        //TODO: this needs to be moved to a return from this method
+        
         System.out.println("Initial givens: " + this.difficulty.getInitialGivens());
         System.out.println("Passes through grid: " + passesThroughGridCount);
         System.out.println("Naked singles found: " + this.difficulty.getNakedSingleCount());
@@ -611,6 +621,7 @@ public class SudokuGraderApp {
         return valuesInRow.get(col);
     }
 
+    //TODO unit test fails here because solutionGrid is empty
     List<List<Integer>> getValuesInRow(int row) {
         List<List<Integer>> currentRow = this.solutionGrid.get(row);
         return currentRow;
