@@ -6,8 +6,9 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.LogManager;
-import java.util.logging.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import kh.sudokugrader.exception.SolutionGridNotInitializedException;
 
@@ -21,8 +22,9 @@ import kh.sudokugrader.exception.SolutionGridNotInitializedException;
  */
 public class SudokuGraderApp {
 
-    private static Logger LOG = Logger.getLogger("SudokuGraderApp");
-
+    //private static Logger LOG = Logger.getLogger("SudokuGraderApp");
+    private static final Logger LOGGER = LogManager.getLogger();
+    
     private static final Set<Integer> allowedValues = new HashSet<>(
             Arrays.asList(new Integer[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 }));
 
@@ -59,29 +61,22 @@ public class SudokuGraderApp {
      * Default constructor.
      */
     public SudokuGraderApp() {
-
-        InputStream inputStream = SudokuGraderApp.class.getResourceAsStream("/logging.properties");
-        try {
-            LogManager.getLogManager().readConfiguration(inputStream);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
     }
 
     public static void main(String[] args) {
 
         SudokuGraderApp app = new SudokuGraderApp();
-        app.printGridWithBorders();
+        //app.printGridWithBorders();
 
         app.populateSolutionGridWithStartingPosition();
-        app.printSolutionGrid();
+        //app.printSolutionGrid();
+        app.printGridWithBorders();
         long startTime = System.currentTimeMillis();
         app.gradePuzzle();
         long endTime = System.currentTimeMillis();
         app.printSolutionGridWithBorders();
-        System.out.println("Complete!");
-        System.out.println("Elapsed time: " + (endTime - startTime));
+        LOGGER.info("Complete!");
+        LOGGER.info("Elapsed time: " + (endTime - startTime));
     }
 
     private void printValuesSet(Set<Integer> squareValues) {
@@ -97,24 +92,34 @@ public class SudokuGraderApp {
      * 
      */
     private void printGridWithBorders() {
+        StringBuilder sb = new StringBuilder(120);
+        sb.append("\n+-------+-------+-------+\n");
         for (int row = 0; row < 9; row++) {
+            sb.append("| ");
             for (int col = 0; col < 9; col++) {
                 int value = startingSudokuGrid[row][col];
-                System.out.print((value == 0 ? " " : value) + " ");
+                sb.append((value == 0 ? " " : value) + " ");
                 if (col == 2 || col == 5) {
-                    System.out.print("| ");
+                    sb.append("| ");
                 }
             }
             if (row == 2 || row == 5) {
-                System.out.println("\n- - - + - - - + - - -");
-            } else {
-                System.out.println();
+                sb.append("|");
+                sb.append("\n+-------+-------+-------+\n");
+            }
+            else {
+                sb.append("|\n");
             }
         }
+
+        sb.append("+-------+-------+-------+\n");
+        LOGGER.info(sb.toString());
     }
 
     void printSolutionGrid() {
-        System.out.println("Current candidates: ");
+        LOGGER.trace("Current candidates: ");
+        StringBuilder sb = new StringBuilder(120);
+        
         for (List<List<Integer>> row : this.solutionGrid) {
             for (List<Integer> currentCell : row) {
                 // full cell pad to accomodate 0..9
@@ -123,46 +128,49 @@ public class SudokuGraderApp {
                 // temp - reduced pad
                 int paddingSize = (5 - currentCell.size()) * 3;
 
-                System.out.print("{ ");
+                sb.append("{ ");
                 for (Integer i : currentCell) {
-                    System.out.print(i.toString() + ", ");
+                    sb.append(i.toString() + ", ");
                 }
                 for (int paddingCount = 0; paddingCount < paddingSize; paddingCount++) {
-                    System.out.print(" ");
+                    sb.append(" ");
                 }
 
-                System.out.print(" },");
+                sb.append(" },");
             }
-            System.out.println();
+            sb.append("\n");
         }
-        System.out.println();
+        LOGGER.trace(sb.toString());
     }
 
     void printSolutionGridWithBorders() {
         int rowIndex = 0;
         int colIndex = 0;
-        System.out.println("+-------+-------+_------+");
+        StringBuilder sb = new StringBuilder(120);
+        sb.append("\n+-------+-------+-------+\n");
         for (List<List<Integer>> row : this.solutionGrid) {
             colIndex = 0;
-            System.out.print("| ");
+            sb.append("| ");
             for (List<Integer> currentRow : row) {
                 for (Integer value : currentRow) {
-                    System.out.print(value + " ");
+                    sb.append(value + " ");
                     if (colIndex == 2 || colIndex == 5) {
-                        System.out.print("| ");
+                        sb.append("| ");
                     }
                     colIndex++;
                 }
             }
             if (rowIndex == 2 || rowIndex == 5) {
-                System.out.println("\n+-------+-------+-------+");
+                sb.append("|");
+                sb.append("\n+-------+-------+-------+\n");
             } else {
-                System.out.println("|");
+                sb.append("|\n");
             }
             rowIndex++;
             //System.out.println();
         }
-        System.out.println("+-------+-------+-------+");
+        sb.append("+-------+-------+-------+\n");
+        LOGGER.info(sb.toString());
     }
 
     public void populateSolutionGridWithStartingPosition() {
@@ -208,7 +216,7 @@ public class SudokuGraderApp {
         // pass 1 - loop through squares and populate empty cells with lists of all candidate values
         this.populateCandidateValues();
 
-        this.printSolutionGrid();
+        this.printGridWithBorders();
 
         // pass 2 - loop through individual cells and apply human solving techniques to determine complexity
         // continues until no more solutions are found
@@ -271,19 +279,19 @@ public class SudokuGraderApp {
         
         if(unsolvedCells > 0) {
             this.difficulty.setPuzzleSolved(false);
-            System.out.println("Puzzle solved: NO");
+            LOGGER.info("Puzzle solved: NO");
         }
         else {
             this.difficulty.setPuzzleSolved(true);
-            System.out.println("Puzzle solved: Yes");
+            LOGGER.info("Puzzle solved: Yes");
         }
         
         //TODO: this needs to be moved to a return from this method
         
-        System.out.println("Initial givens: " + this.difficulty.getInitialGivens());
-        System.out.println("Passes through grid: " + passesThroughGridCount);
-        System.out.println("Naked singles found: " + this.difficulty.getNakedSingleCount());
-        System.out.println("Hidden singles found: " + this.difficulty.getHiddenSingleCount());
+        LOGGER.info("Initial givens: " + this.difficulty.getInitialGivens());
+        LOGGER.info("Passes through grid: " + passesThroughGridCount);
+        LOGGER.info("Naked singles found: " + this.difficulty.getNakedSingleCount());
+        LOGGER.info("Hidden singles found: " + this.difficulty.getHiddenSingleCount());
         
         return difficulty;
     }
@@ -291,13 +299,12 @@ public class SudokuGraderApp {
     void populateCandidateValues() {
         for (int rowSquare = 0; rowSquare < 3; rowSquare++) {
             for (int colSquare = 0; colSquare < 3; colSquare++) {
-                System.out.print("Square " + rowSquare + ", " + colSquare + ": ");
                 Set<Integer> singleValuesInSquare = this.getSingleValuesInSquare(rowSquare, colSquare);
-                this.printValuesSet(singleValuesInSquare);
+                //this.printValuesSet(singleValuesInSquare);
 
                 Set<Integer> candidateValues = this.getCandidateValues(singleValuesInSquare);
-                System.out.print("Candidate values: ");
-                this.printValuesSet(candidateValues);
+                //System.out.print("Candidate values: ");
+                //this.printValuesSet(candidateValues);
                 // insert candidate values into every blank cell in this square
                 this.updateValuesInSquare(rowSquare, colSquare, new ArrayList<Integer>(candidateValues));
             }
@@ -435,7 +442,7 @@ public class SudokuGraderApp {
             }
         }
 
-        System.out.println("Unsolved cells: " + numberOfUnsolvedCells);
+        LOGGER.trace("Unsolved cells: " + numberOfUnsolvedCells);
 
         
         return numberOfUnsolvedCells;
