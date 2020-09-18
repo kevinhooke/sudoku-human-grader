@@ -312,28 +312,64 @@ public class SudokuGraderApp {
     }
 
     //TODO in progress
-    private boolean findHiddenSinglesInCandidates(int row, int col) {
+    boolean findHiddenSinglesInCandidates(int row, int col) {
         boolean valuesReplaced = false;
 
-        // find hidden singles in square
+        //TODO not implemented yet - find hidden singles in square
         Set<Integer> hiddenSinglesInSquare = this.findHiddenSinglesSquareByRowCol(row, col);
-        //remove other candidates in square
-        //TODO
+        //TODO remove other candidates in square
+        this.removeOtherCandidatesInSquareWhereHiddenSinglesExist(row, col, hiddenSinglesInSquare);
         
         // find hidden singles in row
         Set<Integer> hiddenSinglesInRow = this.findHiddenSinglesInRow(row);
-        //remove other candidates in row
-        this.removeOtherCandidatesInCellWhereHiddenSingleExists(row, col,hiddenSinglesInRow);
+        //remove other candidates in row - this leaves a single candidate in cell which could uncover other cells to be solved
+        if(hiddenSinglesInRow.size() > 0) {
+            this.removeOtherCandidatesInCellWhereHiddenSingleExists(row, col, hiddenSinglesInRow);
+        }
         
         // get hidden singles in col
         Set<Integer> hiddenSinglesInCol = this.findHiddenSinglesInColumn(col);
-        //remove other candidates in col
-        //TODO
+        //TODO ***HERE** remove other candidates in col
+        if(hiddenSinglesInCol.size() > 0) {
+            this.removeOtherCandidatesInColWhereHiddenSinglesExist(row, col, hiddenSinglesInCol);
+        }
         
         return valuesReplaced;
     }
 
-    
+    //TODO refactor for columns
+    void removeOtherCandidatesInColWhereHiddenSinglesExist(int row, int col, Set<Integer> hiddenSinglesInCol) {
+        List<List<Integer>> valuesInCol = this.getValuesInCol(col);
+
+        for (Integer value : hiddenSinglesInCol) {
+            int compareColumn = 0;
+            for(List<Integer> valuesInCell : valuesInCol) {
+                //if this cell contains this candidate, delete all other values and keep just this value
+                if(valuesInCell.contains(value)) {
+                    valuesInCell.clear();
+                    valuesInCell.add(value);
+                    valuesInCol.set(compareColumn, valuesInCell);
+                    //TODO need a set column here since this spans multiple lists
+                    //this.solutionGrid.set(row, valuesInRow);
+                    this.setColumnInSolutionGrid(valuesInCol);
+                }
+                compareColumn++;
+            }
+        }
+        
+    }
+
+    void removeOtherCandidatesInRowWhereHiddenSinglesExist() {
+        // TODO implement this
+        
+    }
+
+    void removeOtherCandidatesInSquareWhereHiddenSinglesExist(int row, int col,
+            Set<Integer> hiddenSinglesInSquare) {
+        // TODO implement this
+        
+    }
+
     /**
      * For each identified hidden single in this row, find the cell where each exists and remove the other candidates
      * 
@@ -357,10 +393,51 @@ public class SudokuGraderApp {
             }
         }
     }
-
+    
+    
+    //TODO need to test this
     Set<Integer> findHiddenSinglesInColumn(int col) {
-        // TODO Auto-generated method stub
-        return null;
+        int startingUnsolvedCells = this.checkForCompleteSolution();
+        Set<Integer> hiddenSingles = new HashSet<Integer>();
+        List<List<Integer>> valuesInCol = this.getValuesInCol(col);
+        for (int row = 0; row < 9; row++) {
+            List<Integer> valuesInRow = valuesInCol.get(col);
+            
+            //if this cell only contains a single value then skip because this could be a naked single and we'll check it
+            //using the naked singles approach
+            if(valuesInCol.size() > 1 ) {
+                //for each of the candidate values in a cell, check if they exist in any of the other
+                //cells - if they don't then this is a naked single
+                for(Integer currentValueInCol : valuesInRow) {
+                  //does this current value exist in any of the other columns?
+                    //exclude the current column
+                    int colToCompare = 0;
+                    
+                    //TODO: after copying this from findHiddenSinglesInRow, not sure what this is doing here
+                    List<Integer> candidatesInAllColsInrow = new ArrayList<>();
+                    for(List<Integer> candidatesInCol : valuesInCol) {
+                        
+                        //if we're not comparing the same cell and if this cell contains more than a single value 
+                        //(which would be a naked single)
+                        if(colToCompare != col) {
+                            candidatesInAllColsInrow.addAll(candidatesInCol);
+                        }
+                        colToCompare++;
+                    }
+                    //if current value does not exist in any of the other cells in this row, save it
+                    if (!candidatesInAllColsInrow.contains(currentValueInCol)) {
+                        hiddenSingles.add(currentValueInCol);
+                    }
+    
+                }
+            }
+        }
+        int endUnsolvedCells = this.checkForCompleteSolution();
+        
+        this.difficulty.setHiddenSingleCount(this.difficulty.getNakedSingleCount() 
+                + (startingUnsolvedCells - endUnsolvedCells));
+        
+        return hiddenSingles;
     }
 
     /**
@@ -628,12 +705,35 @@ public class SudokuGraderApp {
         return valuesInRow.get(col);
     }
 
-    //TODO unit test fails here because solutionGrid is empty
+    /**
+     * Retrieves list of values for a given row
+     * 
+     * @param row
+     * @return
+     */
     List<List<Integer>> getValuesInRow(int row) {
         List<List<Integer>> currentRow = this.solutionGrid.get(row);
         return currentRow;
     }
 
+    
+    List<List<Integer>> getValuesInCol(int col){
+        
+        List<List<Integer>> columnValues = new ArrayList<>();
+        
+        for(List<List<Integer>> currentRow : this.solutionGrid) {
+            List<Integer> valuesInCell = currentRow.get(col);
+            
+            //add values to results
+            columnValues.add(valuesInCell);
+        }
+        
+        
+        return columnValues;
+        
+    }
+    
+    
     Set<Integer> getValuesInRowAsSet(int row) {
         Set<Integer> values = new HashSet<>();
 
