@@ -323,8 +323,37 @@ public class SudokuGraderAppTest {
 	        SudokuGraderApp app = new SudokuGraderApp();
 	        app.setSudokuGridWithSolutionShorthand(givenSolutionsShorthand);
 	        int[][] solutionGrid = app.getSudokuGrid();
-	        assertArrayEquals(expectedResult1, solutionGrid);
-	        
-	        
+	        assertArrayEquals(expectedResult1, solutionGrid); 
+	   }
+	   
+	   @Test
+	   public void testGetValuesInCol_0() {
+	       List<String> givenSolutionsShorthand = new ArrayList<>();
+           givenSolutionsShorthand.add("1........");
+           givenSolutionsShorthand.add("2........");
+           givenSolutionsShorthand.add("3........");
+           givenSolutionsShorthand.add("4........");
+           givenSolutionsShorthand.add("5........");
+           givenSolutionsShorthand.add("6........");
+           givenSolutionsShorthand.add("7........");
+           givenSolutionsShorthand.add("8........");
+           givenSolutionsShorthand.add("9........");
+           
+           SudokuGraderApp app = new SudokuGraderApp();
+           app.setSudokuGridWithSolutionShorthand(givenSolutionsShorthand);
+           app.populateSolutionGridWithStartingPosition();
+           List<List<Integer>> columnValues = app.getValuesInCol(0);
+           assertEquals(9, columnValues.size());
+           assertEquals(1, columnValues.get(0).size());
+           assertEquals(Integer.valueOf(1), columnValues.get(0).get(0));
+           assertEquals(1, columnValues.get(8).size());
+           assertEquals(Integer.valueOf(9), columnValues.get(8).get(0));
+
+	   }
+	   
+	   @Test
+	   public void testsetColumnInSolutionGrid_1() {
+	       
+	       
 	   }
 }
