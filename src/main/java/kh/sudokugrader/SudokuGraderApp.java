@@ -351,10 +351,30 @@ public class SudokuGraderApp {
                     valuesInCol.set(compareColumn, valuesInCell);
                     //TODO need a set column here since this spans multiple lists
                     //this.solutionGrid.set(row, valuesInRow);
-                    this.setColumnInSolutionGrid(valuesInCol);
+                    this.setColumnInSolutionGrid(col, valuesInCol);
                 }
                 compareColumn++;
             }
+        }
+        
+    }
+
+    /**
+     * Sets new values in a column in the solution grid.
+     * 
+     * @param col the column to set the new values into
+     * @param valuesInCol new values for the specified column
+     */
+    // TODO needs a unit test
+    void setColumnInSolutionGrid(int col, List<List<Integer>> newValuesInCol) {
+
+        for(int currentRow = 0; currentRow < 9; currentRow++) {
+            List<List<Integer>> currentRowValues = this.solutionGrid.get(currentRow);
+            
+            //get values in current column
+            //List<Integer> currentColumnValuesInRow = currentRowValues.get(col);
+            //replace column values with new values
+            currentRowValues.set(col, newValuesInCol.get(currentRow));
         }
         
     }
