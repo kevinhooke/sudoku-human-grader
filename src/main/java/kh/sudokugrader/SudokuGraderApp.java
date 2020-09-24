@@ -337,7 +337,7 @@ public class SudokuGraderApp {
         return valuesReplaced;
     }
 
-    //TODO refactor for columns
+    //TODO test this
     void removeOtherCandidatesInColWhereHiddenSinglesExist(int row, int col, Set<Integer> hiddenSinglesInCol) {
         List<List<Integer>> valuesInCol = this.getValuesInCol(col);
 
@@ -349,8 +349,6 @@ public class SudokuGraderApp {
                     valuesInCell.clear();
                     valuesInCell.add(value);
                     valuesInCol.set(compareColumn, valuesInCell);
-                    //TODO need a set column here since this spans multiple lists
-                    //this.solutionGrid.set(row, valuesInRow);
                     this.setColumnInSolutionGrid(col, valuesInCol);
                 }
                 compareColumn++;
@@ -365,18 +363,14 @@ public class SudokuGraderApp {
      * @param col the column to set the new values into
      * @param valuesInCol new values for the specified column
      */
-    // TODO needs a unit test
     void setColumnInSolutionGrid(int col, List<List<Integer>> newValuesInCol) {
 
         for(int currentRow = 0; currentRow < 9; currentRow++) {
             List<List<Integer>> currentRowValues = this.solutionGrid.get(currentRow);
             
-            //get values in current column
-            //List<Integer> currentColumnValuesInRow = currentRowValues.get(col);
             //replace column values with new values
             currentRowValues.set(col, newValuesInCol.get(currentRow));
         }
-        
     }
 
     void removeOtherCandidatesInRowWhereHiddenSinglesExist() {
@@ -513,7 +507,7 @@ public class SudokuGraderApp {
     }
 
     Set<Integer> findHiddenSinglesSquareByRowCol(int row, int col) {
-        // TODO Auto-generated method stub
+        // TODO implement this
         return null;
     }
 

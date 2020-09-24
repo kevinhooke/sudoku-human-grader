@@ -352,8 +352,83 @@ public class SudokuGraderAppTest {
 	   }
 	   
 	   @Test
-	   public void testsetColumnInSolutionGrid_1() {
-	       
-	       
+	   public void testSetColumnInSolutionGrid_col1() {
+	       List<String> givenSolutionsShorthand = new ArrayList<>();
+           givenSolutionsShorthand.add(".........");
+           givenSolutionsShorthand.add(".........");
+           givenSolutionsShorthand.add(".........");
+           givenSolutionsShorthand.add(".........");
+           givenSolutionsShorthand.add(".........");
+           givenSolutionsShorthand.add(".........");
+           givenSolutionsShorthand.add(".........");
+           givenSolutionsShorthand.add(".........");
+           givenSolutionsShorthand.add(".........");
+           
+           SudokuGraderApp app = new SudokuGraderApp();
+           app.setSudokuGridWithSolutionShorthand(givenSolutionsShorthand);
+           app.populateSolutionGridWithStartingPosition();
+           
+           List<List<Integer>> columnValues = app.getValuesInCol(0);
+           assertEquals(9, columnValues.size());
+           //all cells are empty
+           assertEquals(0, columnValues.get(0).size());
+           assertEquals(0, columnValues.get(1).size());
+           assertEquals(0, columnValues.get(2).size());
+           assertEquals(0, columnValues.get(3).size());
+           assertEquals(0, columnValues.get(4).size());
+           assertEquals(0, columnValues.get(5).size());
+           assertEquals(0, columnValues.get(6).size());
+           assertEquals(0, columnValues.get(7).size());
+           assertEquals(0, columnValues.get(8).size());
+           
+           //set col 1
+           List<List<Integer>> valuesInCol = new ArrayList<>();
+           List<Integer> row1Values = new ArrayList<>();
+           row1Values.add(Integer.valueOf(1));
+           List<Integer> row2Values = new ArrayList<>();
+           row2Values.add(Integer.valueOf(2));
+           row2Values.add(Integer.valueOf(3));
+           List<Integer> row3Values = new ArrayList<>();
+           List<Integer> row4Values = new ArrayList<>();
+           List<Integer> row5Values = new ArrayList<>();
+           List<Integer> row6Values = new ArrayList<>();
+           List<Integer> row7Values = new ArrayList<>();
+           List<Integer> row8Values = new ArrayList<>();
+           List<Integer> row9Values = new ArrayList<>();
+           
+           valuesInCol.add(row1Values);
+           valuesInCol.add(row2Values);
+           valuesInCol.add(row3Values);
+           valuesInCol.add(row4Values);
+           valuesInCol.add(row5Values);
+           valuesInCol.add(row6Values);
+           valuesInCol.add(row7Values);
+           valuesInCol.add(row8Values);
+           valuesInCol.add(row9Values);
+           app.setColumnInSolutionGrid(0, valuesInCol);
+           
+           //check results
+           List<List<Integer>> newColumnValues = app.getValuesInCol(0);
+           assertEquals(9, newColumnValues.size());
+           //row 1 in this column has 1 value
+           assertEquals(1, newColumnValues.get(0).size());
+           //check value is 1
+           assertEquals(Integer.valueOf(1), newColumnValues.get(0).get(0));
+           
+           //row 2 in this column has 2 values
+           assertEquals(2, newColumnValues.get(1).size());
+           //check 1st value is 2
+           assertEquals(Integer.valueOf(2), newColumnValues.get(1).get(0));
+           //check 2nd value is 3
+           assertEquals(Integer.valueOf(3), newColumnValues.get(1).get(1));
+
+           //all other rows are empty
+           assertEquals(0, newColumnValues.get(2).size());
+           assertEquals(0, newColumnValues.get(3).size());
+           assertEquals(0, newColumnValues.get(4).size());
+           assertEquals(0, newColumnValues.get(5).size());
+           assertEquals(0, newColumnValues.get(6).size());
+           assertEquals(0, newColumnValues.get(7).size());
+           assertEquals(0, newColumnValues.get(8).size());
 	   }
 }
