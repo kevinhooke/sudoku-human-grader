@@ -318,43 +318,51 @@ public class SudokuGraderApp {
         //TODO not implemented yet - find hidden singles in square
         Set<Integer> hiddenSinglesInSquare = this.findHiddenSinglesSquareByRowCol(row, col);
         //TODO remove other candidates in square
-        this.removeOtherCandidatesInSquareWhereHiddenSinglesExist(row, col, hiddenSinglesInSquare);
+        boolean valuesRemovedInSquare = this.removeOtherCandidatesInSquareWhereHiddenSinglesExist(row, col, hiddenSinglesInSquare);
         
         // find hidden singles in row
         Set<Integer> hiddenSinglesInRow = this.findHiddenSinglesInRow(row);
         //remove other candidates in row - this leaves a single candidate in cell which could uncover other cells to be solved
+        boolean valuesRemovedInCell = false;
         if(hiddenSinglesInRow.size() > 0) {
-            this.removeOtherCandidatesInCellWhereHiddenSingleExists(row, col, hiddenSinglesInRow);
+            valuesRemovedInCell = this.removeOtherCandidatesInCellWhereHiddenSingleExists(row, col, hiddenSinglesInRow);
         }
         
         // get hidden singles in col
         Set<Integer> hiddenSinglesInCol = this.findHiddenSinglesInColumn(col);
-        //TODO ***HERE** remove other candidates in col
+        boolean valuesRemovedInCol = false;
+        //remove other candidates in col
         if(hiddenSinglesInCol.size() > 0) {
-            this.removeOtherCandidatesInColWhereHiddenSinglesExist(row, col, hiddenSinglesInCol);
+            valuesRemovedInCol = this.removeOtherCandidatesInColWhereHiddenSinglesExist(row, col, hiddenSinglesInCol);
         }
         
+        if(valuesRemovedInSquare || valuesRemovedInCell || valuesRemovedInCol) {
+            valuesReplaced = true;
+        }
         return valuesReplaced;
     }
 
     //TODO test this
-    void removeOtherCandidatesInColWhereHiddenSinglesExist(int row, int col, Set<Integer> hiddenSinglesInCol) {
+    boolean removeOtherCandidatesInColWhereHiddenSinglesExist(int row, int col, Set<Integer> hiddenSinglesInCol) {
+        boolean valuesRemoved = false;
+        
         List<List<Integer>> valuesInCol = this.getValuesInCol(col);
 
         for (Integer value : hiddenSinglesInCol) {
             int compareColumn = 0;
             for(List<Integer> valuesInCell : valuesInCol) {
-                //if this cell contains this candidate, delete all other values and keep just this value
-                if(valuesInCell.contains(value)) {
+                //if this cell contains this candidate and there's other values in the cell, delete all other values and keep just this value
+                if(valuesInCell.contains(value) && valuesInCell.size() > 1) {
                     valuesInCell.clear();
                     valuesInCell.add(value);
                     valuesInCol.set(compareColumn, valuesInCell);
                     this.setColumnInSolutionGrid(col, valuesInCol);
+                    valuesRemoved = true;
                 }
                 compareColumn++;
             }
         }
-        
+        return valuesRemoved;
     }
 
     /**
@@ -378,10 +386,13 @@ public class SudokuGraderApp {
         
     }
 
-    void removeOtherCandidatesInSquareWhereHiddenSinglesExist(int row, int col,
+    boolean removeOtherCandidatesInSquareWhereHiddenSinglesExist(int row, int col,
             Set<Integer> hiddenSinglesInSquare) {
+        boolean valuesRemoved = false;
+        
         // TODO implement this
         
+        return valuesRemoved;
     }
 
     /**
@@ -389,8 +400,9 @@ public class SudokuGraderApp {
      * 
      * @param hiddenSinglesInRow
      */
-    void removeOtherCandidatesInCellWhereHiddenSingleExists(int row, int col, Set<Integer> hiddenSinglesInRow) {
-
+    boolean removeOtherCandidatesInCellWhereHiddenSingleExists(int row, int col, Set<Integer> hiddenSinglesInRow) {
+        boolean valuesRemoved = false;
+        
         List<List<Integer>> valuesInRow = this.getValuesInRow(row);
 
         for (Integer value : hiddenSinglesInRow) {
@@ -402,10 +414,12 @@ public class SudokuGraderApp {
                     valuesInCell.add(value);
                     valuesInRow.set(compareColumn, valuesInCell);
                     this.solutionGrid.set(row, valuesInRow);
+                    valuesRemoved = true;
                 }
                 compareColumn++;
             }
         }
+        return valuesRemoved;
     }
     
     
@@ -506,8 +520,17 @@ public class SudokuGraderApp {
         return hiddenSingles;
     }
 
+    // TODO ** HERE ** finish this
     Set<Integer> findHiddenSinglesSquareByRowCol(int row, int col) {
-        // TODO implement this
+
+        
+        //TODO copied from naked singlesInSquare - update for hiddden singles
+        int squareRow = this.getSquareRowFromRow(row);
+        int squareCol = this.getSquareColFromCol(col);
+        
+        //TODO update this for hidden singles
+        //Set<Integer> singleValuesInSquare = this.getSingleValuesInSquare(squareRow, squareCol);
+        
         return null;
     }
 
@@ -698,6 +721,7 @@ public class SudokuGraderApp {
     }
 
     private Set<Integer> findSingleValuesInSquareByRowCol(int row, int col) {
+        //TODO test: are these working as expected?
         int squareRow = this.getSquareRowFromRow(row);
         int squareCol = this.getSquareColFromCol(col);
         Set<Integer> singleValuesInSquare = this.getSingleValuesInSquare(squareRow, squareCol);

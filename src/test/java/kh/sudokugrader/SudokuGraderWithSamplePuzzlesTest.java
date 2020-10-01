@@ -114,6 +114,7 @@ public class SudokuGraderWithSamplePuzzlesTest {
      * Hidden singles found: 0
      * 
      * TODO: how many outer loop parses does this puzzle need to find a solution?
+     * TODO: should
      */
     @Test
     public void testEasy1(){
@@ -204,6 +205,18 @@ public class SudokuGraderWithSamplePuzzlesTest {
         assertTrue(diffculty.isPuzzleSolved());
     }
     
+    /**
+     * Hard puzzle from ???
+     * 
+     * Can be solved with only naked and hidden singles. Is this really a hard
+     * puzzle? Should be easy/medium on my scale?
+     * 
+     * Puzzle solved: Yes
+     * Initial givens: 26
+     * Passes through grid: 11
+     * Naked singles found: 45
+     * Hidden singles found: 15
+     */
     @Test
     public void testHard1(){
         SudokuGraderApp app = new SudokuGraderApp();
