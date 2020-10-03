@@ -3,8 +3,10 @@ package kh.sudokugrader;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
@@ -524,12 +526,12 @@ public class SudokuGraderApp {
     Set<Integer> findHiddenSinglesSquareByRowCol(int row, int col) {
 
         
-        //TODO copied from naked singlesInSquare - update for hiddden singles
+        //TODO copied from naked singlesInSquare - update for hidden singles
         int squareRow = this.getSquareRowFromRow(row);
         int squareCol = this.getSquareColFromCol(col);
         
         //TODO update this for hidden singles
-        //Set<Integer> singleValuesInSquare = this.getSingleValuesInSquare(squareRow, squareCol);
+        Set<Integer> hiddenSingleValuesInSquare = this.getHiddenSingleValuesInSquare(squareRow, squareCol);
         
         return null;
     }
@@ -671,6 +673,45 @@ public class SudokuGraderApp {
         return values;
     }
 
+    
+    //TODO complete this
+    Set<Integer> getHiddenSingleValuesInSquare(int row, int col) {
+        Set<Integer> values = new HashSet<>();
+        Map<Integer, Integer> candidateValueCounts = new HashMap<>();
+        
+        // iterate 3 rows for square
+        for (int rowOffset = row * 3; rowOffset < (row * 3) + 3; rowOffset++) {
+            List<List<Integer>> currentRow = getValuesInRow(rowOffset);
+
+            // iterate 3 cells for current row
+            for (int cellOffset = col * 3; cellOffset < (col * 3) + 3; cellOffset++) {
+                List<Integer> cellContent = currentRow.get(cellOffset);
+                
+                //TODO add logic here to collect and hidden value (where it only appears once in the square)
+                
+                //TODO map of 1 through 9, value is count of occurrences
+                for(Integer value : cellContent) {
+                    //get current count in map for this value, and increment count by 1
+                    Integer countForValue = candidateValueCounts.get(value);
+                    if(countForValue == null) {
+                        candidateValueCounts.put(value, Integer.valueOf(1));
+                    }
+                    else {
+                        countForValue++;
+                        candidateValueCounts.put(value, countForValue);
+                    }
+                        
+                }
+            }
+        }
+
+        //TODO check for any candidate values where they occur only once and copy these to the results
+        //candidateValueCounts
+        
+        return values;
+    }
+    
+    
     /**
      * Updates empty values in a square. Checks for single values in the same
      * column first, then the same row, and removes them from the guessed
