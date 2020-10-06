@@ -431,4 +431,8 @@ public class SudokuGraderAppTest {
            assertEquals(0, newColumnValues.get(7).size());
            assertEquals(0, newColumnValues.get(8).size());
 	   }
+	   
+	   //TODO findHiddenSingles in col with values:
+	   // [[4, 6, 7, 8, 9], [3], [2], [3, 8, 9], [3, 6, 7, 8, 9], [3, 6, 7, 9], [8, 9], [1], [5]]
+	   // 4 is a hidden single here and is not currently being found
 }

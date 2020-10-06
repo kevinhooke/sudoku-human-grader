@@ -103,6 +103,41 @@ public class SudokuGraderWithSamplePuzzlesTest {
             {2,0,0,0,7,0,6,0,0}
             };
     
+    
+    /**
+     * Example puzzle with hidden singles
+     * 
+     * From http://hodoku.sourceforge.net/en/tech_singles.php#h1
+     */
+    private int[][] sudokuGrid_easy4 = {
+            {0,2,8,0,0,7,0,0,0},
+            {0,1,6,0,8,3,0,7,0},
+            {0,0,0,0,2,0,8,5,1},
+            {1,3,7,2,9,0,0,0,0},
+            {0,0,0,7,3,0,0,0,0},
+            {0,0,0,0,4,6,3,0,7},
+            {2,9,0,0,7,0,0,0,0},
+            {0,0,0,8,6,0,1,4,0},
+            {0,0,0,3,0,0,7,0,0}           
+    };
+
+    /**
+     * Solveable with hidden singles only
+     * 
+     * From https://github.com/SudokuMonster/SukakuExplainer/wiki/SE121---Some-interesting-Sudokus
+     */
+    private int[][] sudokuGrid_easy5 = {
+            {0,0,0,0,0,0,3,0,1},
+            {8,6,0,0,0,0,0,0,0},
+            {0,0,0,2,0,0,0,0,0},
+            {0,0,0,0,4,0,7,6,0},
+            {0,0,1,0,0,0,0,0,0},
+            {0,0,0,0,0,0,0,8,0},
+            {0,7,0,0,0,0,6,4,0},
+            {5,0,0,1,0,3,0,0,0},
+            {0,0,0,5,0,0,0,0,0},          
+    };
+    
     /**
      * This easy puzzle can be solved with only naked singles, confirming therefore
      * difficult = easy.
@@ -172,6 +207,31 @@ public class SudokuGraderWithSamplePuzzlesTest {
     public void testEasy3(){
         SudokuGraderApp app = new SudokuGraderApp();
         app.setSudokuGrid(this.sudokuGrid_easy3);
+        app.populateSolutionGridWithStartingPosition();
+        PuzzleDifficulty diffculty = app.gradePuzzle();
+        app.printSolutionGridWithBorders();
+        
+        //TODO need asserts
+        assertTrue(diffculty.isPuzzleSolved());
+    }
+    
+    
+    @Test
+    public void testEasy4(){
+        SudokuGraderApp app = new SudokuGraderApp();
+        app.setSudokuGrid(this.sudokuGrid_easy4);
+        app.populateSolutionGridWithStartingPosition();
+        PuzzleDifficulty diffculty = app.gradePuzzle();
+        app.printSolutionGridWithBorders();
+        
+        //TODO need asserts
+        assertTrue(diffculty.isPuzzleSolved());
+    }
+    
+    @Test
+    public void testEasy5(){
+        SudokuGraderApp app = new SudokuGraderApp();
+        app.setSudokuGrid(this.sudokuGrid_easy5);
         app.populateSolutionGridWithStartingPosition();
         PuzzleDifficulty diffculty = app.gradePuzzle();
         app.printSolutionGridWithBorders();

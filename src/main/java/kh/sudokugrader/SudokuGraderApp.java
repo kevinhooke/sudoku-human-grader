@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
@@ -121,7 +122,7 @@ public class SudokuGraderApp {
     void printSolutionGrid() {
         LOGGER.trace("Current candidates: ");
         StringBuilder sb = new StringBuilder(120);
-        
+        sb.append("\n");
         for (List<List<Integer>> row : this.solutionGrid) {
             for (List<Integer> currentCell : row) {
                 // full cell pad to accomodate 0..9
@@ -228,7 +229,7 @@ public class SudokuGraderApp {
         //Note: some easy puzzles can be solved with only 1 or 2 passes, some take 3 or more
         //TODO: revisit number of passes for harder puzzles
         int unsolvedCells = 0;
-        for(int outerSolverLoop = 0; outerSolverLoop < 3; outerSolverLoop++) {
+        for(int outerSolverLoop = 0; outerSolverLoop < 20; outerSolverLoop++) {
             boolean solvedValuesOnAtLeastOnePass = true;
             
             while (solvedValuesOnAtLeastOnePass) {
@@ -260,8 +261,6 @@ public class SudokuGraderApp {
                     boolean replacedOnLastIteration = false;
                     for (int col = 0; col < 9; col++) {
                         for (int row = 0; row < 9; row++) {
-                            
-                            //TODO need to update difficulty here
                             
                             boolean solvedValuesThisPass = this.findHiddenSinglesInCandidates(row, col);
                             if (solvedValuesThisPass) {
@@ -316,10 +315,11 @@ public class SudokuGraderApp {
     //TODO in progress
     boolean findHiddenSinglesInCandidates(int row, int col) {
         boolean valuesReplaced = false;
-
-        //TODO not implemented yet - find hidden singles in square
+        int startingUnsolvedCells = this.checkForCompleteSolution();
+        
+        //find hidden singles in square
         Set<Integer> hiddenSinglesInSquare = this.findHiddenSinglesSquareByRowCol(row, col);
-        //TODO remove other candidates in square
+        //TODO remove other candidates in cell for each of the hidden singles in a square
         boolean valuesRemovedInSquare = this.removeOtherCandidatesInSquareWhereHiddenSinglesExist(row, col, hiddenSinglesInSquare);
         
         // find hidden singles in row
@@ -341,6 +341,10 @@ public class SudokuGraderApp {
         if(valuesRemovedInSquare || valuesRemovedInCell || valuesRemovedInCol) {
             valuesReplaced = true;
         }
+        
+        int endUnsolvedCells = this.checkForCompleteSolution();
+        this.difficulty.setHiddenSingleCount(this.difficulty.getHiddenSingleCount() 
+                + (startingUnsolvedCells - endUnsolvedCells));
         return valuesReplaced;
     }
 
@@ -388,11 +392,45 @@ public class SudokuGraderApp {
         
     }
 
+    //TODO test this
     boolean removeOtherCandidatesInSquareWhereHiddenSinglesExist(int row, int col,
             Set<Integer> hiddenSinglesInSquare) {
         boolean valuesRemoved = false;
         
-        // TODO implement this
+        int squareRow = this.getSquareRowFromRow(row);
+        int squareCol = this.getSquareColFromCol(col);
+        
+        // iterate 3 rows for square
+        for (int rowOffset = squareRow * 3; rowOffset < (squareRow * 3) + 3; rowOffset++) {
+            
+            //TODO test is this fixed: IndexOutOfBoundsException here when passed 3? (was missing getSquareFrom...())
+            
+            List<List<Integer>> currentRow = getValuesInRow(rowOffset);
+
+            // iterate 3 cells for current row
+            for (int cellOffset = squareCol * 3; cellOffset < (squareCol * 3) + 3; cellOffset++) {
+                List<Integer> cellContent = currentRow.get(cellOffset);
+                
+                //remove other candidates in cell if this cell contains a hidden single
+                //if any of the values in this cell are in the hiddenSinglesSet, set the only
+                //candidate in this cell to the hidden single and remove all the other values
+                // - the first identified candidate value in the hidden singles list has to be
+                //the only hidden single for this cell so we can break after finding the first one
+                for(Integer candidateValue : cellContent) {
+                    //only remove the other candidates if there's more than 2 candidates in the cell
+                    if(hiddenSinglesInSquare.size() > 1 && hiddenSinglesInSquare.contains(candidateValue)) {
+                        cellContent.clear();
+                        cellContent = Arrays.asList(candidateValue);
+                        currentRow.set(cellOffset, cellContent);
+                        valuesRemoved = true;
+                        break;
+                    }
+                }
+                        
+             
+            }
+        }
+
         
         return valuesRemoved;
     }
@@ -430,8 +468,10 @@ public class SudokuGraderApp {
         int startingUnsolvedCells = this.checkForCompleteSolution();
         Set<Integer> hiddenSingles = new HashSet<Integer>();
         List<List<Integer>> valuesInCol = this.getValuesInCol(col);
-        for (int row = 0; row < 9; row++) {
-            List<Integer> valuesInRow = valuesInCol.get(col);
+        for (int row = 0; row < 9; row++){
+            
+            //TODO test this - was incorrectly using col instead of row
+            List<Integer> valuesInRow = valuesInCol.get(row);
             
             //if this cell only contains a single value then skip because this could be a naked single and we'll check it
             //using the naked singles approach
@@ -443,7 +483,7 @@ public class SudokuGraderApp {
                     //exclude the current column
                     int colToCompare = 0;
                     
-                    //TODO: after copying this from findHiddenSinglesInRow, not sure what this is doing here
+                    //TODO: bug - I don't think this approach works, see occurence counting approach in getHiddenSingleValuesInSquare() instead
                     List<Integer> candidatesInAllColsInrow = new ArrayList<>();
                     for(List<Integer> candidatesInCol : valuesInCol) {
                         
@@ -525,15 +565,12 @@ public class SudokuGraderApp {
     // TODO ** HERE ** finish this
     Set<Integer> findHiddenSinglesSquareByRowCol(int row, int col) {
 
-        
-        //TODO copied from naked singlesInSquare - update for hidden singles
         int squareRow = this.getSquareRowFromRow(row);
         int squareCol = this.getSquareColFromCol(col);
         
-        //TODO update this for hidden singles
         Set<Integer> hiddenSingleValuesInSquare = this.getHiddenSingleValuesInSquare(squareRow, squareCol);
         
-        return null;
+        return hiddenSingleValuesInSquare;
     }
 
     /**
@@ -674,9 +711,15 @@ public class SudokuGraderApp {
     }
 
     
-    //TODO complete this
+    /**
+     * Finds hidden singles in a square.
+     * 
+     * @param row
+     * @param col
+     * @return candidate values that are hidden singles in this square
+     */
     Set<Integer> getHiddenSingleValuesInSquare(int row, int col) {
-        Set<Integer> values = new HashSet<>();
+        Set<Integer> result = new HashSet<>();
         Map<Integer, Integer> candidateValueCounts = new HashMap<>();
         
         // iterate 3 rows for square
@@ -687,9 +730,9 @@ public class SudokuGraderApp {
             for (int cellOffset = col * 3; cellOffset < (col * 3) + 3; cellOffset++) {
                 List<Integer> cellContent = currentRow.get(cellOffset);
                 
-                //TODO add logic here to collect and hidden value (where it only appears once in the square)
+                //collect and hidden value (where it only appears once in the square)
                 
-                //TODO map of 1 through 9, value is count of occurrences
+                //map of 1 through 9, value is count of occurrences
                 for(Integer value : cellContent) {
                     //get current count in map for this value, and increment count by 1
                     Integer countForValue = candidateValueCounts.get(value);
@@ -705,10 +748,14 @@ public class SudokuGraderApp {
             }
         }
 
-        //TODO check for any candidate values where they occur only once and copy these to the results
-        //candidateValueCounts
+        //check for any candidate values where they occur only once and copy these to the results
+        for(Entry<Integer, Integer> item : candidateValueCounts.entrySet()) {
+            if(item.getValue() == 1) {
+                result.add(item.getValue());
+            }
+        }
         
-        return values;
+        return result;
     }
     
     
