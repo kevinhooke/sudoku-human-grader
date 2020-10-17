@@ -319,8 +319,13 @@ public class SudokuGraderApp {
         
         //find hidden singles in square
         Set<Integer> hiddenSinglesInSquare = this.findHiddenSinglesSquareByRowCol(row, col);
-        //TODO remove other candidates in cell for each of the hidden singles in a square
-        boolean valuesRemovedInSquare = this.removeOtherCandidatesInSquareWhereHiddenSinglesExist(row, col, hiddenSinglesInSquare);
+        //remove other candidates in cell for each of the hidden singles in a square
+        boolean valuesRemovedInSquare = false;
+        if(hiddenSinglesInSquare.size() > 0)
+        {
+            //TODO bug: this is not removing values anymore, was working
+            valuesRemovedInSquare = this.removeOtherCandidatesInSquareWhereHiddenSinglesExist(row, col, hiddenSinglesInSquare);
+        }
         
         // find hidden singles in row
         Set<Integer> hiddenSinglesInRow = this.findHiddenSinglesInRow(row);
@@ -343,8 +348,10 @@ public class SudokuGraderApp {
         }
         
         int endUnsolvedCells = this.checkForCompleteSolution();
-        this.difficulty.setHiddenSingleCount(this.difficulty.getHiddenSingleCount() 
-                + (startingUnsolvedCells - endUnsolvedCells));
+        int solvedCells = startingUnsolvedCells - endUnsolvedCells;
+        if(solvedCells > 0) {
+            this.difficulty.setHiddenSingleCount(this.difficulty.getHiddenSingleCount() + solvedCells);
+        }
         return valuesReplaced;
     }
 
@@ -494,7 +501,7 @@ public class SudokuGraderApp {
                         }
                         colToCompare++;
                     }
-                    //if current value does not exist in any of the other cells in this row, save it
+                    //if current value does not exist in any of the other cells in this column, save it
                     if (!candidatesInAllColsInrow.contains(currentValueInCol)) {
                         hiddenSingles.add(currentValueInCol);
                     }
@@ -503,10 +510,10 @@ public class SudokuGraderApp {
             }
         }
         int endUnsolvedCells = this.checkForCompleteSolution();
-        
-        this.difficulty.setHiddenSingleCount(this.difficulty.getNakedSingleCount() 
-                + (startingUnsolvedCells - endUnsolvedCells));
-        
+        int solvedCells = startingUnsolvedCells - endUnsolvedCells;
+        if(solvedCells > 0) {
+            this.difficulty.setHiddenSingleCount(this.difficulty.getHiddenSingleCount() + solvedCells);
+        }
         return hiddenSingles;
     }
 
@@ -555,10 +562,10 @@ public class SudokuGraderApp {
             }
         }
         int endUnsolvedCells = this.checkForCompleteSolution();
-        
-        this.difficulty.setHiddenSingleCount(this.difficulty.getNakedSingleCount() 
-                + (startingUnsolvedCells - endUnsolvedCells));
-        
+        int solvedCells = startingUnsolvedCells - endUnsolvedCells;
+        if(solvedCells > 0) {
+            this.difficulty.setHiddenSingleCount(this.difficulty.getHiddenSingleCount() + solvedCells);
+        }
         return hiddenSingles;
     }
 
@@ -730,20 +737,25 @@ public class SudokuGraderApp {
             for (int cellOffset = col * 3; cellOffset < (col * 3) + 3; cellOffset++) {
                 List<Integer> cellContent = currentRow.get(cellOffset);
                 
-                //collect and hidden value (where it only appears once in the square)
+                //collect and hidden value:
+                // - where it only appears once in the square
+                //TODO: fix this
+                // - and occurs in a cell with more than 1 other candidate in the same cell
                 
                 //map of 1 through 9, value is count of occurrences
-                for(Integer value : cellContent) {
-                    //get current count in map for this value, and increment count by 1
-                    Integer countForValue = candidateValueCounts.get(value);
-                    if(countForValue == null) {
-                        candidateValueCounts.put(value, Integer.valueOf(1));
+                if(cellContent.size() > 1) {
+                    for(Integer value : cellContent) {
+                        //get current count in map for this value, and increment count by 1
+                        Integer countForValue = candidateValueCounts.get(value);
+                        if(countForValue == null) {
+                            candidateValueCounts.put(value, Integer.valueOf(1));
+                        }
+                        else {
+                            countForValue++;
+                            candidateValueCounts.put(value, countForValue);
+                        }
+                            
                     }
-                    else {
-                        countForValue++;
-                        candidateValueCounts.put(value, countForValue);
-                    }
-                        
                 }
             }
         }
@@ -751,7 +763,8 @@ public class SudokuGraderApp {
         //check for any candidate values where they occur only once and copy these to the results
         for(Entry<Integer, Integer> item : candidateValueCounts.entrySet()) {
             if(item.getValue() == 1) {
-                result.add(item.getValue());
+                //TODO check this
+                result.add(item.getKey());
             }
         }
         

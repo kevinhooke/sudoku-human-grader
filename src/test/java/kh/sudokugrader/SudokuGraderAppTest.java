@@ -41,6 +41,18 @@ public class SudokuGraderAppTest {
             {0,0,0,0,0,0,0,0,0},
         };
 	
+    private int[][] sudokuGrid_easy3 = {  
+            {0,0,1,0,2,0,0,0,4},
+            {0,6,0,0,0,0,0,0,0},
+            {8,4,0,1,0,0,3,0,0},
+            {0,0,0,0,3,0,0,9,0},
+            {0,8,5,9,0,7,2,6,0},
+            {0,1,0,0,8,0,0,0,0},
+            {0,0,8,0,0,4,0,5,1},
+            {0,0,0,0,0,0,0,4,0},
+            {2,0,0,0,7,0,6,0,0}
+            };
+    
 /*
  * This puzzle was generated with 60 removed candidates. Human solver/grader can't currently
  * solve this one. The DLX Solver can solve it ok.
@@ -78,7 +90,7 @@ public class SudokuGraderAppTest {
 
    @Test
     public void testGetSingleValuesInColumn_8(){
-        
+        //TODO complete this
     }
 
 	@Test
@@ -241,8 +253,6 @@ public class SudokuGraderAppTest {
 
 	@Test
     public void testFindHiddenSinglesInRow_0(){
-	    
-	    //TODO
         Set<Integer> expectedValues = new HashSet<>();
         expectedValues.add(4);
         
@@ -257,24 +267,40 @@ public class SudokuGraderAppTest {
         assertTrue(values.containsAll(expectedValues));
 	}
 	
-	   @Test
-	    public void testFindHiddenSinglesInRow_1(){
-	        
-	        //TODO
-	        Set<Integer> expectedValues = new HashSet<>();
-	        expectedValues.add(1);
-	        
-	        SudokuGraderApp app = new SudokuGraderApp();
-	        app.setSudokuGrid(this.sudokuGrid);
-	        app.populateSolutionGridWithStartingPosition();
-	        app.populateCandidateValues();
-	        app.printSolutionGrid();
-	        Set<Integer> values = app.findHiddenSinglesInRow(1);
-	        
-	        assertTrue(values.size() == 1);
-            assertTrue(values.containsAll(expectedValues));
+	@Test
+	public void testFindHiddenSinglesInCol_0() {
+        Set<Integer> expectedValues = new HashSet<>();
+        expectedValues.add(1);
+        
+        SudokuGraderApp app = new SudokuGraderApp();
+        app.setSudokuGrid(this.sudokuGrid_easy3);
+        app.populateSolutionGridWithStartingPosition();
+        app.populateCandidateValues();
+        app.printSolutionGrid();
+        Set<Integer> values = app.findHiddenSinglesInColumn(0);
+        
+        assertTrue(values.size() == 1);
+        assertTrue(values.containsAll(expectedValues));
+	}
+	
+    @Test
+    public void testFindHiddenSinglesInRow_1() {
 
-	   }
+        // TODO
+        Set<Integer> expectedValues = new HashSet<>();
+        expectedValues.add(1);
+
+        SudokuGraderApp app = new SudokuGraderApp();
+        app.setSudokuGrid(this.sudokuGrid);
+        app.populateSolutionGridWithStartingPosition();
+        app.populateCandidateValues();
+        app.printSolutionGrid();
+        Set<Integer> values = app.findHiddenSinglesInRow(1);
+
+        assertTrue(values.size() == 1);
+        assertTrue(values.containsAll(expectedValues));
+
+    }
 	   
 	    /**
 	     * Test for issue with blank cells seems to start with a row like this:
