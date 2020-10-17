@@ -1,6 +1,5 @@
 package kh.sudokugrader;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -16,9 +15,7 @@ import org.apache.logging.log4j.Logger;
 import kh.sudokugrader.exception.SolutionGridNotInitializedException;
 
 /**
- * Sudoku grader.
- * 
- * TODO
+ * Sudoku grader. Uses human solving techniques to determine the difficulty of a puzzle.
  * 
  * @author kevinhooke
  *
@@ -323,7 +320,6 @@ public class SudokuGraderApp {
         boolean valuesRemovedInSquare = false;
         if(hiddenSinglesInSquare.size() > 0)
         {
-            //TODO bug: this is not removing values anymore, was working
             valuesRemovedInSquare = this.removeOtherCandidatesInSquareWhereHiddenSinglesExist(row, col, hiddenSinglesInSquare);
         }
         
@@ -470,39 +466,40 @@ public class SudokuGraderApp {
     }
     
     
-    //TODO need to test this
+    /**
+     * 
+     * @param col
+     * @return
+     */
     Set<Integer> findHiddenSinglesInColumn(int col) {
         int startingUnsolvedCells = this.checkForCompleteSolution();
         Set<Integer> hiddenSingles = new HashSet<Integer>();
         List<List<Integer>> valuesInCol = this.getValuesInCol(col);
         for (int row = 0; row < 9; row++){
             
-            //TODO test this - was incorrectly using col instead of row
             List<Integer> valuesInRow = valuesInCol.get(row);
             
             //if this cell only contains a single value then skip because this could be a naked single and we'll check it
             //using the naked singles approach
-            if(valuesInCol.size() > 1 ) {
+            if(valuesInRow.size() > 1 ) {
                 //for each of the candidate values in a cell, check if they exist in any of the other
                 //cells - if they don't then this is a naked single
                 for(Integer currentValueInCol : valuesInRow) {
-                  //does this current value exist in any of the other columns?
-                    //exclude the current column
-                    int colToCompare = 0;
-                    
-                    //TODO: bug - I don't think this approach works, see occurence counting approach in getHiddenSingleValuesInSquare() instead
-                    List<Integer> candidatesInAllColsInrow = new ArrayList<>();
-                    for(List<Integer> candidatesInCol : valuesInCol) {
+                  //does this current value exist in any of the other rows in this column?
+                    //exclude the current row
+                    int rowToCompare = 0;
+                    List<Integer> candidatesInAllRowsInCol = new ArrayList<>();
+                    for(List<Integer> candidatesInRow : valuesInCol) {
                         
                         //if we're not comparing the same cell and if this cell contains more than a single value 
                         //(which would be a naked single)
-                        if(colToCompare != col) {
-                            candidatesInAllColsInrow.addAll(candidatesInCol);
+                        if(rowToCompare != row) {
+                            candidatesInAllRowsInCol.addAll(candidatesInRow);
                         }
-                        colToCompare++;
+                        rowToCompare++;
                     }
                     //if current value does not exist in any of the other cells in this column, save it
-                    if (!candidatesInAllColsInrow.contains(currentValueInCol)) {
+                    if (!candidatesInAllRowsInCol.contains(currentValueInCol)) {
                         hiddenSingles.add(currentValueInCol);
                     }
     

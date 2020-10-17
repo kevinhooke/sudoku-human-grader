@@ -200,8 +200,8 @@ public class SudokuGraderWithSamplePuzzlesTest {
      * Puzzle solved: Yes
      * Initial givens: 26
      * Passes through grid: 12
-     * Naked singles found: 44
-     * Hidden singles found: 34
+     * Naked singles found: 31
+     * Hidden singles found: 23
      */
     @Test
     public void testEasy3(){
@@ -228,6 +228,13 @@ public class SudokuGraderWithSamplePuzzlesTest {
         assertTrue(diffculty.isPuzzleSolved());
     }
     
+    /**
+     * Puzzle solved: Yes
+     * Initial givens: 17
+     * Passes through grid: 31
+     * Naked singles found: 12
+     * Hidden singles found: 52
+     */
     @Test
     public void testEasy5(){
         SudokuGraderApp app = new SudokuGraderApp();
@@ -250,8 +257,8 @@ public class SudokuGraderWithSamplePuzzlesTest {
      * Puzzle solved: Yes
      * Initial givens: 31
      * Passes through grid: 10
-     * Naked singles found: 41
-     * Hidden singles found: 21
+     * Naked singles found: 21
+     * Hidden singles found: 27
      */
     @Test
     public void testMedium1(){
@@ -274,8 +281,8 @@ public class SudokuGraderWithSamplePuzzlesTest {
      * Puzzle solved: Yes
      * Initial givens: 26
      * Passes through grid: 11
-     * Naked singles found: 45
-     * Hidden singles found: 15
+     * Naked singles found: 15
+     * Hidden singles found: 37
      */
     @Test
     public void testHard1(){
