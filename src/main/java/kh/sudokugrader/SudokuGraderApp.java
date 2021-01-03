@@ -309,7 +309,12 @@ public class SudokuGraderApp {
         }
     }
 
-    //TODO in progress
+    /**
+     * 
+     * @param row
+     * @param col
+     * @return
+     */
     boolean findHiddenSinglesInCandidates(int row, int col) {
         boolean valuesReplaced = false;
         int startingUnsolvedCells = this.checkForCompleteSolution();
@@ -374,6 +379,13 @@ public class SudokuGraderApp {
         return valuesRemoved;
     }
 
+    //TODO
+    boolean findLockedCandidates(int row, int col) {
+        boolean result = false;
+                
+        return result;
+    }
+    
     /**
      * Sets new values in a column in the solution grid.
      * 
@@ -388,11 +400,6 @@ public class SudokuGraderApp {
             //replace column values with new values
             currentRowValues.set(col, newValuesInCol.get(currentRow));
         }
-    }
-
-    void removeOtherCandidatesInRowWhereHiddenSinglesExist() {
-        // TODO implement this
-        
     }
 
     //TODO test this
@@ -736,9 +743,7 @@ public class SudokuGraderApp {
                 
                 //collect and hidden value:
                 // - where it only appears once in the square
-                //TODO: fix this
                 // - and occurs in a cell with more than 1 other candidate in the same cell
-                
                 //map of 1 through 9, value is count of occurrences
                 if(cellContent.size() > 1) {
                     for(Integer value : cellContent) {

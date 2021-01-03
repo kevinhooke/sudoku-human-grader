@@ -105,7 +105,10 @@ public class SudokuGraderWithSamplePuzzlesTest {
     
     
     /**
-     * Example puzzle with hidden singles
+     * Example puzzle with hidden singles.
+     * 
+     * TODO: To solve, this also requires locked candidates to eliminate candidates.
+     * e.g. col 7 has 2 9s in square 8 that eliminate 9 in the same column in row 3
      * 
      * From http://hodoku.sourceforge.net/en/tech_singles.php#h1
      */
@@ -215,7 +218,9 @@ public class SudokuGraderWithSamplePuzzlesTest {
         assertTrue(diffculty.isPuzzleSolved());
     }
     
-    
+    /**
+     * TODO: can't currently be solved with naked or hidden singles
+     */
     @Test
     public void testEasy4(){
         SudokuGraderApp app = new SudokuGraderApp();
