@@ -2,11 +2,13 @@ package kh.sudokugrader;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
@@ -273,6 +275,30 @@ public class SudokuGraderApp {
                 }
                 
             }
+            
+            //
+            //TODO next approach - add hidden pairs
+            //
+            //did we find a solution? if not try next approach
+            unsolvedCells = this.checkForCompleteSolution();
+            if(unsolvedCells > 0) {
+                solvedValuesOnAtLeastOnePass = true;
+                
+                while (solvedValuesOnAtLeastOnePass) {
+                    boolean replacedOnLastIteration = false;
+                    //TODO try rows first, add columns and squares later
+                        for (int row = 0; row < 9; row++) {
+                            replacedOnLastIteration = this.findPairsInCandidateRows(row, 2);
+                        }
+                        if (!replacedOnLastIteration) {
+                            solvedValuesOnAtLeastOnePass = false;
+                        }
+
+                    passesThroughGridCount++;
+                    this.printSolutionGrid();
+                }
+                
+            }
         }
         
         if(unsolvedCells > 0) {
@@ -294,6 +320,82 @@ public class SudokuGraderApp {
         return difficulty;
     }
 
+    /**
+     * 
+     * @param row
+     * @param numberOfCandidates 2 = pairs, 3 = triples, etc
+     * @return
+     */
+    boolean findPairsInCandidateRows(int row, int numberOfCandidates) {
+        boolean result = false;
+        
+        //get row
+        List<List<Integer>> values = this.getValuesInRow(row);
+        //find columns where values exist,
+        //e.g. 1 exists in columns 1, 3, 8,
+        // 2 exists in 2, 8, 9
+        //etc
+        Map<Integer, List<Integer>> locationsOfValues = this.findIndexesOfListWhereEachIntExists(values);
+        
+        return false;
+    }
+
+    /**
+     * For each value in a List of List of ints, find index of the list where the int exists.
+     * 
+     * For example, given [ [1,2,3], [3,4,5], [3,6,7] ] 
+     * 1 exists in list 0
+     * 2 exists in list 0
+     * 3 exists in 0, 1, 2
+     * 4 exists in 1
+     * etc
+     * 
+     */
+    Map<Integer, List<Integer>> findIndexesOfListWhereEachIntExists(List<List<Integer>> list){
+        
+        Map<Integer, List<Integer>> results = new HashMap<>();
+        
+        //get list of all values
+        List<Integer> values = list.stream()
+            .flatMap(Collection::stream)
+            .collect(Collectors.toList());
+        
+        //for each of the values, get list index within list where it exists
+        values.forEach(
+                
+                value -> {
+                    List<Integer> listsContainingValue = findIndexesOfListsWhereValueExists(value, list);
+                    if(results.get(value) == null) {
+                        results.put(value, listsContainingValue);
+                    }
+                }
+        );
+        
+        return results;
+    }
+
+    /**
+     * Given a list of list of ints, find all the indexes of the lists where the passed value exists
+     */
+    public List<Integer> findIndexesOfListsWhereValueExists(int value, List<List<Integer>> list){
+        
+        List<List<Integer>> listsContainingInt = list.stream()
+                .filter(e -> e.contains(Integer.valueOf(value)))
+                .collect(Collectors.toList());
+        
+        List<Integer> listIndexes = new ArrayList<>();
+        
+        //get indexes where each list exists
+        for(List<Integer> listContainingValue : listsContainingInt) {
+            listIndexes.add(list.indexOf(listContainingValue));
+        }
+        return listIndexes;
+    }
+
+    /**
+     * Populates the grid with all possible candidate values. This must be called prior
+     * to starting the solver.
+     */
     void populateCandidateValues() {
         for (int rowSquare = 0; rowSquare < 3; rowSquare++) {
             for (int colSquare = 0; colSquare < 3; colSquare++) {

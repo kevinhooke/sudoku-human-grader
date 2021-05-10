@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.junit.Test;
@@ -489,4 +490,42 @@ public class SudokuGraderAppTest {
 	   //TODO findHiddenSingles in col with values:
 	   // [[4, 6, 7, 8, 9], [3], [2], [3, 8, 9], [3, 6, 7, 8, 9], [3, 6, 7, 9], [8, 9], [1], [5]]
 	   // 4 is a hidden single here and is not currently being found
+
+	  /**
+       * Puzzle with hidden pairs example on line 1:
+       * https://www.sudokuwiki.org/sudoku.htm?bd=000000000904607000076804100309701080008000300050308702007502610000403208000000000
+       * 
+       */
+	   @Test
+	   public void testFindIndexesOfListWhereEachIntExists() {
+	       List<String> givenSolutionsShorthand = new ArrayList<>();
+           givenSolutionsShorthand.add(".........");
+           givenSolutionsShorthand.add("9.46.7...");
+           givenSolutionsShorthand.add(".768.41..");
+           givenSolutionsShorthand.add("3.97.1.8.");
+           givenSolutionsShorthand.add("..8...3..");
+           givenSolutionsShorthand.add(".5.3.87.2");
+           givenSolutionsShorthand.add("..75.261.");
+           givenSolutionsShorthand.add("...4.32.8");
+           givenSolutionsShorthand.add(".........");
+           
+           SudokuGraderApp app = new SudokuGraderApp();
+           app.setSudokuGridWithSolutionShorthand(givenSolutionsShorthand);
+           app.populateSolutionGridWithStartingPosition();
+           app.populateCandidateValues();
+           app.printSolutionGrid();
+           Map<Integer, List<Integer>> result = app.findIndexesOfListWhereEachIntExists(app.getValuesInRow(0));
+	       
+           //test locations for 1
+           assertEquals(5, result.get(Integer.valueOf(1)).size());
+           assertEquals(Arrays.asList(0,1,2,3,4), result.get(Integer.valueOf(1)));
+           
+           //test locations for 2
+           assertEquals(6, result.get(Integer.valueOf(2)).size());
+           assertEquals(Arrays.asList(0,1,2,3,4,7), result.get(Integer.valueOf(2)));
+           
+           //test locations for 3
+           assertEquals(5, result.get(Integer.valueOf(3)).size());
+           assertEquals(Arrays.asList(1,2,4,7,8), result.get(Integer.valueOf(3)));
+	   }
 }
