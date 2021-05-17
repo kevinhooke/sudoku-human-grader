@@ -22,6 +22,9 @@ import kh.sudokugrader.exception.SolutionGridNotInitializedException;
  * @author kevinhooke
  *
  */
+
+//TODO: this needs to be refactored to a main app and support classes, it's grown too large
+
 public class SudokuGraderApp {
 
     //private static Logger LOG = Logger.getLogger("SudokuGraderApp");
@@ -277,7 +280,7 @@ public class SudokuGraderApp {
             }
             
             //
-            //TODO next approach - add hidden pairs
+            //TODO next approach - add hidden pairs: this is in progress
             //
             //did we find a solution? if not try next approach
             unsolvedCells = this.checkForCompleteSolution();
@@ -286,7 +289,9 @@ public class SudokuGraderApp {
                 
                 while (solvedValuesOnAtLeastOnePass) {
                     boolean replacedOnLastIteration = false;
-                    //TODO try rows first, add columns and squares later
+                    //TODO: try findPairsInCandidateRows first, add columns and squares later
+                    //TODO: findPairsInCandidateCols
+                    //TODO: findPairsInCandidateSquares
                         for (int row = 0; row < 9; row++) {
                             replacedOnLastIteration = this.findPairsInCandidateRows(row, 2);
                         }
@@ -321,10 +326,12 @@ public class SudokuGraderApp {
     }
 
     /**
-     * 
-     * @param row
+     * Finds pairs in a given row, and removes anywhere in the same row where those
+     * pair values exist in the same row.
+     *  
+     * @param row the row to search for pairs
      * @param numberOfCandidates 2 = pairs, 3 = triples, etc
-     * @return
+     * @return true if a pair found and values removed as candates elsewhere in the row
      */
     boolean findPairsInCandidateRows(int row, int numberOfCandidates) {
         boolean result = false;
@@ -392,6 +399,122 @@ public class SudokuGraderApp {
         return listIndexes;
     }
 
+    
+    //TODO: bring across findListsContainingPairs
+   /**
+    * Finds combinations of pairs of values in a list. Note that [1,2] and [2,1] are considered
+    * the same and we're only looking for combinations, not permutations (not all possible combinations
+    * where order is relevant).
+    * 
+    * 
+    * 
+    * e.g. given [1,2,3] returns:
+    * [1,2], [1,3], [2,3]
+    * @return
+    */
+   //TODO: refactor to use Streams
+   public List<List<Integer>> findCombinationsOfPairsInList(List<Integer> values){
+       List<List<Integer>> result = new ArrayList<>();
+       
+           for(int startingInt = 0; startingInt < values.size(); startingInt++) {
+
+               for(int secondValue = startingInt + 1 ; secondValue < values.size(); secondValue++) {
+                   List<Integer> tempOneComboList = new ArrayList<>();
+                   tempOneComboList.add(values.get(startingInt));
+                   tempOneComboList.add(values.get(secondValue));
+                   result.add(tempOneComboList);
+               }
+               
+           }
+       
+       return result;
+   }
+   
+   /**
+    * Given a list of list of ints, find combinations in each of the lists.
+    * 
+    * Given: [ [1,2,3], [4,5,6], [7,8,9] ]
+    * Returns:
+    * [ [[1,2], [1,3], [2,3]], [[4,5], [4,6], [5,6]], [[7,8], [7,9], [8,9]] ]
+    * @param list of list of ints
+    * @return list of list of lists
+    */
+   List<List<List<Integer>>> findCombinationsOfPairsInListOfLists(List<List<Integer>> values){
+       List<List<List<Integer>>> result = new ArrayList<>();
+       
+       values.forEach(listOfInts -> {
+           List<List<Integer>> combosInList = this.findCombinationsOfPairsInList(listOfInts);
+           result.add(combosInList);
+       });
+       
+       return result;
+   }
+    /**
+     * Given a list of list of ints, find all the indexes of the lists that contains the passed list.
+     * 
+     */
+    List<Integer> findIndexesOfListsThatContainList(List<Integer> listToFind, List<List<Integer>> list){
+        
+        List<List<Integer>> listsContainingInt = list.stream()
+                .filter(e -> e.containsAll(listToFind))
+                .collect(Collectors.toList());
+        
+        List<Integer> listIndexes = new ArrayList<>();
+        
+        //get indexes where each list exists
+        for(List<Integer> listContainingValue : listsContainingInt) {
+            listIndexes.add(list.indexOf(listContainingValue));
+        }
+        return listIndexes;
+    }
+    
+    /**
+     * Find indexes of lists that contain a list.
+     * 
+     * Given a list of list of ints like: [ [1,2,3], [4,1,2], [7,8,9] ]
+     * finds the indexes of where each pair of values exists in each of the other lists.
+     * 
+     * For example:
+     * Pair [1,2] exists in list indexes 0 and 1, returned as a list [0, 1]
+     * Pair [2,3] only exists in [0]
+     * Similar for all other pairs, then only exist in one of the lists.
+     *  
+     * @param values
+     * @return map of pairs with a list of the indexes of the lists where that pair exists,
+     * for example:
+     * [1,2] : [0, 1] // the pair [1,2] exists in list 0 and list 1
+     * [2,3] : [0]
+     * [4,1] : [1]
+     * [4,2] : [1]
+     * etc
+     */
+    Map<List<Integer>, List<Integer>> findListsContainingPairs(List<List<Integer>> values){
+        Map<List<Integer>, List<Integer>> result = new HashMap<>();
+        
+        
+        // Given: [ [1,2,3], [4,5,6], [7,8,9] ]
+        List<List<List<Integer>>> listOfCombinations = this.findCombinationsOfPairsInListOfLists(values);
+        //Returns: [
+        //           [[1,2], [1,3], [2,3]], 
+        //           [[4,5], [4,6], [5,6]],
+        //           [[7,8], [7,9], [8,9]]
+        //         ]
+
+        
+        listOfCombinations.stream()
+            .forEach(listOfPairs -> listOfPairs.forEach(pairInList -> {
+                
+                List<Integer> listsContaining = findIndexesOfListsThatContainList(pairInList, values);
+                List<Integer> listsContainingSoFar = result.get(pairInList);
+                if(listsContainingSoFar == null) {
+                    //result.put
+                }
+            }));
+        
+        
+        return result;
+    }
+    
     /**
      * Populates the grid with all possible candidate values. This must be called prior
      * to starting the solver.
