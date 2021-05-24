@@ -3,6 +3,7 @@ package kh.sudokugrader;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -527,5 +528,29 @@ public class SudokuGraderAppTest {
            //test locations for 3
            assertEquals(5, result.get(Integer.valueOf(3)).size());
            assertEquals(Arrays.asList(1,2,4,7,8), result.get(Integer.valueOf(3)));
+	   }
+	   
+	   @Test
+       public void testFindListsContainingPairs() {
+           List<String> givenSolutionsShorthand = new ArrayList<>();
+           givenSolutionsShorthand.add(".........");
+           givenSolutionsShorthand.add("9.46.7...");
+           givenSolutionsShorthand.add(".768.41..");
+           givenSolutionsShorthand.add("3.97.1.8.");
+           givenSolutionsShorthand.add("..8...3..");
+           givenSolutionsShorthand.add(".5.3.87.2");
+           givenSolutionsShorthand.add("..75.261.");
+           givenSolutionsShorthand.add("...4.32.8");
+           givenSolutionsShorthand.add(".........");
+           
+           SudokuGraderApp app = new SudokuGraderApp();
+           app.setSudokuGridWithSolutionShorthand(givenSolutionsShorthand);
+           app.populateSolutionGridWithStartingPosition();
+           app.populateCandidateValues();
+           app.printSolutionGrid();
+           Map<List<Integer>, List<Integer>> result = app.findListsContainingPairs(app.getValuesInRow(0));
+           
+           //TODO asserts
+           assertNotNull(result);
 	   }
 }

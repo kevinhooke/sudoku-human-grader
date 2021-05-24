@@ -338,11 +338,24 @@ public class SudokuGraderApp {
         
         //get row
         List<List<Integer>> values = this.getValuesInRow(row);
-        //find columns where values exist,
-        //e.g. 1 exists in columns 1, 3, 8,
-        // 2 exists in 2, 8, 9
-        //etc
-        Map<Integer, List<Integer>> locationsOfValues = this.findIndexesOfListWhereEachIntExists(values);
+        //get locations of pairs
+        // for example:
+        // [1,2] : [0, 1] // the pair [1,2] exists in list 0 and list 1
+        // [2,3] : [0]
+        // [4,1] : [1]
+        // [4,2] : [1]
+        Map<List<Integer>, List<Integer>> locationOfPairs = this.findListsContainingPairs(values);
+        result = this.removeCandidatesWherePairExistsTwice(locationOfPairs);
+        return false;
+    }
+
+    private boolean removeCandidatesWherePairExistsTwice(Map<List<Integer>, List<Integer>> locationOfPairs) {
+        
+        //find any list where it occurs in 2 locations
+        for(Map.Entry<List<Integer>, List<Integer>> entry : locationOfPairs.entrySet()) {
+            System.out.println("pair [" + entry.getKey().toString() + " locations [" + entry.getValue().toString());
+            
+        }
         
         return false;
     }
@@ -400,7 +413,6 @@ public class SudokuGraderApp {
     }
 
     
-    //TODO: bring across findListsContainingPairs
    /**
     * Finds combinations of pairs of values in a list. Note that [1,2] and [2,1] are considered
     * the same and we're only looking for combinations, not permutations (not all possible combinations
@@ -449,6 +461,7 @@ public class SudokuGraderApp {
        
        return result;
    }
+   
     /**
      * Given a list of list of ints, find all the indexes of the lists that contains the passed list.
      * 
@@ -508,6 +521,8 @@ public class SudokuGraderApp {
                 List<Integer> listsContainingSoFar = result.get(pairInList);
                 if(listsContainingSoFar == null) {
                     //result.put
+                    
+                    //TODO continue here
                 }
             }));
         

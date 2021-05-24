@@ -140,6 +140,18 @@ public class SudokuGraderWithSamplePuzzlesTest {
             {5,0,0,1,0,3,0,0,0},
             {0,0,0,5,0,0,0,0,0},          
     };
+
+    private int[][] sudokuGrid_hardWithPairs = {
+        {0,0,0,0,0,0,0,0,0},
+        {9,0,4,6,0,7,0,0,0},
+        {0,7,6,8,0,4,1,0,0},
+        {3,0,9,7,0,1,0,8,0},
+        {0,0,8,0,0,0,3,0,0},
+        {0,5,0,3,0,8,7,0,2},
+        {0,0,7,5,0,2,6,1,0},
+        {0,0,0,4,0,3,2,0,8},
+        {0,0,0,0,0,0,0,0,0}
+    };
     
     /**
      * This easy puzzle can be solved with only naked singles, confirming therefore
@@ -314,5 +326,16 @@ public class SudokuGraderWithSamplePuzzlesTest {
         assertTrue(diffculty.isPuzzleSolved());
     }
     
+    @Test
+    public void testHrdWithPairs1() {
+        SudokuGraderApp app = new SudokuGraderApp();
+        app.setSudokuGrid(this.sudokuGrid_hardWithPairs);
+        app.populateSolutionGridWithStartingPosition();
+        PuzzleDifficulty diffculty = app.gradePuzzle();
+        app.printSolutionGridWithBorders();
+        
+        //TODO need asserts
+        assertTrue(diffculty.isPuzzleSolved());      
+    }
     
 }
