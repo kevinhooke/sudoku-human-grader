@@ -293,7 +293,10 @@ public class SudokuGraderApp {
                     //TODO: findPairsInCandidateCols
                     //TODO: findPairsInCandidateSquares
                         for (int row = 0; row < 9; row++) {
-                            replacedOnLastIteration = this.findPairsInCandidateRows(row, 2);
+                            boolean solvedValuesThisPass = this.findPairsInCandidateRows(row, 2);
+                            if (solvedValuesThisPass) {
+                                replacedOnLastIteration = solvedValuesThisPass;
+                            }
                         }
                         if (!replacedOnLastIteration) {
                             solvedValuesOnAtLeastOnePass = false;
@@ -346,7 +349,7 @@ public class SudokuGraderApp {
         // [4,2] : [1]
         Map<List<Integer>, List<Integer>> locationOfPairs = this.findListsContainingPairs(values);
         result = this.removeCandidatesWherePairExistsTwice(locationOfPairs);
-        return false;
+        return result;
     }
 
     private boolean removeCandidatesWherePairExistsTwice(Map<List<Integer>, List<Integer>> locationOfPairs) {
@@ -354,6 +357,8 @@ public class SudokuGraderApp {
         //find any list where it occurs in 2 locations
         for(Map.Entry<List<Integer>, List<Integer>> entry : locationOfPairs.entrySet()) {
             System.out.println("pair [" + entry.getKey().toString() + " locations [" + entry.getValue().toString());
+            
+            //TODO finish this
             
         }
         
@@ -519,10 +524,15 @@ public class SudokuGraderApp {
                 
                 List<Integer> listsContaining = findIndexesOfListsThatContainList(pairInList, values);
                 List<Integer> listsContainingSoFar = result.get(pairInList);
+                //TODO test this logic - this isn't working, check with junit
                 if(listsContainingSoFar == null) {
-                    //result.put
-                    
-                    //TODO continue here
+                    //add new entry for this list
+                    result.put(pairInList, listsContaining);                    
+                }
+                else {
+                    //this list is already in the list, add the next set of indexes were it exists
+                    listsContainingSoFar.addAll(listsContaining);
+                    result.put(pairInList, listsContainingSoFar);
                 }
             }));
         
