@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
@@ -61,6 +62,7 @@ public class SudokuGraderApp {
 
     
     private PuzzleDifficulty difficulty = new PuzzleDifficulty();
+    private PuzzlePrinter printer = new PuzzlePrinter();
     
     /**
      * Default constructor.
@@ -71,54 +73,18 @@ public class SudokuGraderApp {
     public static void main(String[] args) {
 
         SudokuGraderApp app = new SudokuGraderApp();
+         
         //app.printGridWithBorders();
 
         app.populateSolutionGridWithStartingPosition();
         //app.printSolutionGrid();
-        app.printGridWithBorders();
+
         long startTime = System.currentTimeMillis();
         app.gradePuzzle();
         long endTime = System.currentTimeMillis();
         app.printSolutionGridWithBorders();
         LOGGER.info("Complete!");
         LOGGER.info("Elapsed time: " + (endTime - startTime));
-    }
-
-    private void printValuesSet(Set<Integer> squareValues) {
-        for (Integer i : squareValues) {
-            System.out.print(i.toString() + ", ");
-        }
-        System.out.println();
-        System.out.println();
-    }
-
-    /**
-     * Prints the puzzle grid with borders around each square.
-     * 
-     */
-    private void printGridWithBorders() {
-        StringBuilder sb = new StringBuilder(120);
-        sb.append("\n+-------+-------+-------+\n");
-        for (int row = 0; row < 9; row++) {
-            sb.append("| ");
-            for (int col = 0; col < 9; col++) {
-                int value = startingSudokuGrid[row][col];
-                sb.append((value == 0 ? " " : value) + " ");
-                if (col == 2 || col == 5) {
-                    sb.append("| ");
-                }
-            }
-            if (row == 2 || row == 5) {
-                sb.append("|");
-                sb.append("\n+-------+-------+-------+\n");
-            }
-            else {
-                sb.append("|\n");
-            }
-        }
-
-        sb.append("+-------+-------+-------+\n");
-        LOGGER.info(sb.toString());
     }
 
     void printSolutionGrid() {
@@ -210,7 +176,7 @@ public class SudokuGraderApp {
      * - TODO
      */
     public PuzzleDifficulty gradePuzzle() {
-
+        
         //check starting grid was initialized
         if(this.solutionGrid == null || this.solutionGrid.size() == 0) {
             throw new SolutionGridNotInitializedException();
@@ -221,7 +187,7 @@ public class SudokuGraderApp {
         // pass 1 - loop through squares and populate empty cells with lists of all candidate values
         this.populateCandidateValues();
 
-        this.printGridWithBorders();
+        this.printer.printGridWithBorders(startingSudokuGrid);
 
         // pass 2 - loop through individual cells and apply human solving techniques to determine complexity
         // continues until no more solutions are found
@@ -473,16 +439,11 @@ public class SudokuGraderApp {
      */
     List<Integer> findIndexesOfListsThatContainList(List<Integer> listToFind, List<List<Integer>> list){
         
-        List<List<Integer>> listsContainingInt = list.stream()
-                .filter(e -> e.containsAll(listToFind))
-                .collect(Collectors.toList());
+        List<Integer> listIndexes =
+                IntStream.range(0, list.size()).boxed()
+                        .filter(i -> list.get(i).containsAll(listToFind))
+                        .collect(Collectors.toList());
         
-        List<Integer> listIndexes = new ArrayList<>();
-        
-        //get indexes where each list exists
-        for(List<Integer> listContainingValue : listsContainingInt) {
-            listIndexes.add(list.indexOf(listContainingValue));
-        }
         return listIndexes;
     }
     
@@ -524,15 +485,20 @@ public class SudokuGraderApp {
                 
                 List<Integer> listsContaining = findIndexesOfListsThatContainList(pairInList, values);
                 List<Integer> listsContainingSoFar = result.get(pairInList);
-                //TODO test this logic - this isn't working, check with junit
                 if(listsContainingSoFar == null) {
                     //add new entry for this list
                     result.put(pairInList, listsContaining);                    
+                    //TODO continue here
                 }
                 else {
-                    //this list is already in the list, add the next set of indexes were it exists
-                    listsContainingSoFar.addAll(listsContaining);
-                    result.put(pairInList, listsContainingSoFar);
+                    //this pair is already in the list, add the next set of indexes were it exists
+                    //add new indexes that we've not already found
+                    for(Integer nextIndex : listsContaining) {
+                        if(!listsContainingSoFar.contains(nextIndex)){
+                            listsContainingSoFar.add(nextIndex);
+                            result.put(pairInList, listsContainingSoFar);
+                        }
+                    }
                 }
             }));
         
