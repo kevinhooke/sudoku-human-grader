@@ -259,10 +259,11 @@ public class SudokuGraderAppTest {
         expectedValues.add(4);
         
         SudokuGraderApp app = new SudokuGraderApp();
+        PuzzlePrinter printer = new PuzzlePrinter();
         app.setSudokuGrid(this.sudokuGrid);
         app.populateSolutionGridWithStartingPosition();
         app.populateCandidateValues();
-        app.printSolutionGrid();
+        printer.printSolutionGrid(app.getSolutionGrid());
         Set<Integer> values = app.findHiddenSinglesInRow(0);
         
         assertTrue(values.size() == 1);
@@ -275,10 +276,11 @@ public class SudokuGraderAppTest {
         expectedValues.add(1);
         
         SudokuGraderApp app = new SudokuGraderApp();
+        PuzzlePrinter printer = new PuzzlePrinter();
         app.setSudokuGrid(this.sudokuGrid_easy3);
         app.populateSolutionGridWithStartingPosition();
         app.populateCandidateValues();
-        app.printSolutionGrid();
+        printer.printSolutionGrid(app.getSolutionGrid());
         Set<Integer> values = app.findHiddenSinglesInColumn(0);
         
         assertTrue(values.size() == 1);
@@ -291,10 +293,11 @@ public class SudokuGraderAppTest {
 	        expectedValues.add(2);
 	        
 	        SudokuGraderApp app = new SudokuGraderApp();
+	        PuzzlePrinter printer = new PuzzlePrinter();
 	        app.setSudokuGrid(this.sudokuGrid_easy3);
 	        app.populateSolutionGridWithStartingPosition();
 	        app.populateCandidateValues();
-	        app.printSolutionGrid();
+	        printer.printSolutionGrid(app.getSolutionGrid());
 	        Set<Integer> values = app.findHiddenSinglesInColumn(1);
 	        
 	        assertTrue(values.size() == 1);
@@ -304,10 +307,11 @@ public class SudokuGraderAppTest {
        @Test
        public void testFindHiddenSinglesInCol_2() {
            SudokuGraderApp app = new SudokuGraderApp();
+           PuzzlePrinter printer = new PuzzlePrinter();
            app.setSudokuGrid(this.sudokuGrid_easy3);
            app.populateSolutionGridWithStartingPosition();
            app.populateCandidateValues();
-           app.printSolutionGrid();
+           printer.printSolutionGrid(app.getSolutionGrid());
            Set<Integer> values = app.findHiddenSinglesInColumn(2);
            
            assertTrue(values.size() == 0);
@@ -321,10 +325,11 @@ public class SudokuGraderAppTest {
         expectedValues.add(1);
 
         SudokuGraderApp app = new SudokuGraderApp();
+        PuzzlePrinter printer = new PuzzlePrinter();
         app.setSudokuGrid(this.sudokuGrid);
         app.populateSolutionGridWithStartingPosition();
         app.populateCandidateValues();
-        app.printSolutionGrid();
+        printer.printSolutionGrid(app.getSolutionGrid());
         Set<Integer> values = app.findHiddenSinglesInRow(1);
 
         assertTrue(values.size() == 1);
@@ -511,10 +516,11 @@ public class SudokuGraderAppTest {
            givenSolutionsShorthand.add(".........");
            
            SudokuGraderApp app = new SudokuGraderApp();
+           PuzzlePrinter printer = new PuzzlePrinter();
            app.setSudokuGridWithSolutionShorthand(givenSolutionsShorthand);
            app.populateSolutionGridWithStartingPosition();
            app.populateCandidateValues();
-           app.printSolutionGrid();
+           printer.printSolutionGrid(app.getSolutionGrid());
            Map<Integer, List<Integer>> result = app.findIndexesOfListWhereEachIntExists(app.getValuesInRow(0));
 	       
            //test locations for 1
@@ -544,10 +550,11 @@ public class SudokuGraderAppTest {
            givenSolutionsShorthand.add(".........");
            
            SudokuGraderApp app = new SudokuGraderApp();
+           PuzzlePrinter printer = new PuzzlePrinter();
            app.setSudokuGridWithSolutionShorthand(givenSolutionsShorthand);
            app.populateSolutionGridWithStartingPosition();
            app.populateCandidateValues();
-           app.printSolutionGrid();
+           printer.printSolutionGrid(app.getSolutionGrid());
            Map<List<Integer>, List<Integer>> result = app.findListsContainingPairs(app.getValuesInRow(0));
            
            //TODO asserts

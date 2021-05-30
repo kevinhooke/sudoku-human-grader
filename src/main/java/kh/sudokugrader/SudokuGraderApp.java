@@ -87,33 +87,6 @@ public class SudokuGraderApp {
         LOGGER.info("Elapsed time: " + (endTime - startTime));
     }
 
-    void printSolutionGrid() {
-        LOGGER.trace("Current candidates: ");
-        StringBuilder sb = new StringBuilder(120);
-        sb.append("\n");
-        for (List<List<Integer>> row : this.solutionGrid) {
-            for (List<Integer> currentCell : row) {
-                // full cell pad to accomodate 0..9
-                // int paddingSize = (9 - currentCell.size()) * 3;
-
-                // temp - reduced pad
-                int paddingSize = (5 - currentCell.size()) * 3;
-
-                sb.append("{ ");
-                for (Integer i : currentCell) {
-                    sb.append(i.toString() + ", ");
-                }
-                for (int paddingCount = 0; paddingCount < paddingSize; paddingCount++) {
-                    sb.append(" ");
-                }
-
-                sb.append(" },");
-            }
-            sb.append("\n");
-        }
-        LOGGER.trace(sb.toString());
-    }
-
     void printSolutionGridWithBorders() {
         int rowIndex = 0;
         int colIndex = 0;
@@ -217,7 +190,7 @@ public class SudokuGraderApp {
                     }
                 }
                 passesThroughGridCount++;
-                this.printSolutionGrid();
+                this.printer.printSolutionGrid(this.solutionGrid);
             }
             
             //did we find a solution? if not try next approach
@@ -240,7 +213,7 @@ public class SudokuGraderApp {
                         }
                     }
                     passesThroughGridCount++;
-                    this.printSolutionGrid();
+                    this.printer.printSolutionGrid(this.solutionGrid);
                 }
                 
             }
@@ -269,7 +242,7 @@ public class SudokuGraderApp {
                         }
 
                     passesThroughGridCount++;
-                    this.printSolutionGrid();
+                    this.printer.printSolutionGrid(this.solutionGrid);
                 }
                 
             }
@@ -1167,6 +1140,14 @@ public class SudokuGraderApp {
             colIndex = 0;
         }
         this.setSudokuGrid(startingGrid);
+    }
+
+    public List<List<List<Integer>>> getSolutionGrid() {
+        return solutionGrid;
+    }
+
+    public void setSolutionGrid(List<List<List<Integer>>> solutionGrid) {
+        this.solutionGrid = solutionGrid;
     }
 
 }
