@@ -330,7 +330,7 @@ public class SudokuGraderWithSamplePuzzlesTest {
     }
     
     @Test
-    public void testHrdWithPairs1() {
+    public void testHardWithPairs1() {
         SudokuGraderApp app = new SudokuGraderApp();
         app.setSudokuGrid(this.sudokuGrid_hardWithPairs);
         app.populateSolutionGridWithStartingPosition();

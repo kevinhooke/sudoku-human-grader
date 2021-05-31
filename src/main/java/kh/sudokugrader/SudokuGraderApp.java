@@ -74,10 +74,7 @@ public class SudokuGraderApp {
 
         SudokuGraderApp app = new SudokuGraderApp();
          
-        //app.printGridWithBorders();
-
         app.populateSolutionGridWithStartingPosition();
-        //app.printSolutionGrid();
 
         long startTime = System.currentTimeMillis();
         app.gradePuzzle();
@@ -253,6 +250,9 @@ public class SudokuGraderApp {
             LOGGER.info("Puzzle solved: NO");
         }
         else {
+            
+            //TODO: this needs to call the dlx solver to actually check it's a valid solution
+            
             this.difficulty.setPuzzleSolved(true);
             LOGGER.info("Puzzle solved: Yes");
         }
@@ -263,6 +263,8 @@ public class SudokuGraderApp {
         LOGGER.info("Passes through grid: " + passesThroughGridCount);
         LOGGER.info("Naked singles found: " + this.difficulty.getNakedSingleCount());
         LOGGER.info("Hidden singles found: " + this.difficulty.getHiddenSingleCount());
+        LOGGER.info("Naked pairs found: " + this.difficulty.getNakedPairsCount());
+        LOGGER.info("Hidden pairs found: " + "not implemented yet");
         
         return difficulty;
     }
@@ -287,11 +289,15 @@ public class SudokuGraderApp {
         // [4,1] : [1]
         // [4,2] : [1]
         Map<List<Integer>, List<Integer>> locationOfPairs = this.findListsContainingPairs(values);
-        result = this.removeCandidatesWherePairExistsTwice(locationOfPairs);
+        result = this.removeCandidatesWherePairExistsTwice(row, locationOfPairs);
         return result;
     }
 
-    private boolean removeCandidatesWherePairExistsTwice(Map<List<Integer>, List<Integer>> locationOfPairs) {
+    private boolean removeCandidatesWherePairExistsTwice(int row, Map<List<Integer>, List<Integer>> locationOfPairs) {
+        boolean result = false;
+        System.out.println("Checking row: " + row);
+        //get candidates in current row
+        List<List<Integer>> rowCandidates = this.getValuesInRow(row);
         
         //find any list where it occurs in 2 locations
         for(Map.Entry<List<Integer>, List<Integer>> entry : locationOfPairs.entrySet()) {
@@ -299,9 +305,32 @@ public class SudokuGraderApp {
             
             //TODO finish this
             
+            //does this pair exist in 2 cells where the pair is the only 2 candidates in that cell
+            //how many cells contain just 2 values?
+            //TODO this can probably be simplified to use Streams
+            int containsOnlyThisPair = 0;
+            List<Integer> cellsContainingOnlyThisPair = new ArrayList<>();
+            for(Integer index : entry.getValue()) {
+                System.out.println("    column: " + index + " : candidates: " + rowCandidates.get(index).size());
+                if(rowCandidates.get(index).size() == 2) {
+                    containsOnlyThisPair++;
+                    cellsContainingOnlyThisPair.add(index);
+                }
+            }
+            if(containsOnlyThisPair == 2) {
+                System.out.println("    Match - cells containing only this pair: " + cellsContainingOnlyThisPair);
+                result = this.removePairFromCandidatesInRowWherePairExists(row, entry.getKey());
+                this.difficulty.setNakedPairsCount(this.difficulty.getNakedPairsCount() +1);
+            }
+            else {
+                System.out.println("    No match");
+            }
+                
+            
+            //if so, remove this pair in candidates for any other cell
         }
         
-        return false;
+        return result;
     }
 
     /**
@@ -522,7 +551,7 @@ public class SudokuGraderApp {
         //remove other candidates in row - this leaves a single candidate in cell which could uncover other cells to be solved
         boolean valuesRemovedInCell = false;
         if(hiddenSinglesInRow.size() > 0) {
-            valuesRemovedInCell = this.removeOtherCandidatesInCellWhereHiddenSingleExists(row, col, hiddenSinglesInRow);
+            valuesRemovedInCell = this.removeOtherCandidatesInCellWhereHiddenSingleExists(row, hiddenSinglesInRow);
         }
         
         // get hidden singles in col
@@ -558,6 +587,9 @@ public class SudokuGraderApp {
                 if(valuesInCell.contains(value) && valuesInCell.size() > 1) {
                     valuesInCell.clear();
                     valuesInCell.add(value);
+                    if(valuesInCell.size() == 0) {
+                        throw new InvalidCandidateRemovalException();
+                    }
                     valuesInCol.set(compareColumn, valuesInCell);
                     this.setColumnInSolutionGrid(col, valuesInCol);
                     valuesRemoved = true;
@@ -620,6 +652,9 @@ public class SudokuGraderApp {
                     if(hiddenSinglesInSquare.size() > 1 && hiddenSinglesInSquare.contains(candidateValue)) {
                         cellContent.clear();
                         cellContent = Arrays.asList(candidateValue);
+                        if(cellContent.size() == 0) {
+                            throw new InvalidCandidateRemovalException();
+                        }
                         currentRow.set(cellOffset, cellContent);
                         valuesRemoved = true;
                         break;
@@ -635,22 +670,26 @@ public class SudokuGraderApp {
     }
 
     /**
-     * For each identified hidden single in this row, find the cell where each exists and remove the other candidates
+     * For each identified hidden single in this row, find the cell where each exists and
+     * remove the other candidates in that same cell.
      * 
      * @param hiddenSinglesInRow
      */
-    boolean removeOtherCandidatesInCellWhereHiddenSingleExists(int row, int col, Set<Integer> hiddenSinglesInRow) {
+    boolean removeOtherCandidatesInCellWhereHiddenSingleExists(int row, Set<Integer> hiddenSinglesInRow) {
         boolean valuesRemoved = false;
         
         List<List<Integer>> valuesInRow = this.getValuesInRow(row);
 
-        for (Integer value : hiddenSinglesInRow) {
+        for (Integer valueToKeep : hiddenSinglesInRow) {
             int compareColumn = 0;
             for(List<Integer> valuesInCell : valuesInRow) {
                 //if this cell contains this candidate, delete all other values and keep just this value
-                if(valuesInCell.contains(value)) {
+                if(valuesInCell.contains(valueToKeep)) {
                     valuesInCell.clear();
-                    valuesInCell.add(value);
+                    valuesInCell.add(valueToKeep);
+                    if(valuesInCell.size() == 0) {
+                        throw new InvalidCandidateRemovalException();
+                    }
                     valuesInRow.set(compareColumn, valuesInCell);
                     this.solutionGrid.set(row, valuesInRow);
                     valuesRemoved = true;
@@ -661,6 +700,38 @@ public class SudokuGraderApp {
         return valuesRemoved;
     }
     
+    /**
+     * For each identified naked pair in this row, find the cells in the row where the
+     * any value in the pair exists with other candidates and remove the pair values.
+     * 
+     * @param pairInRow
+     */
+    boolean removePairFromCandidatesInRowWherePairExists(int row, List<Integer> pairInRow) {
+        boolean valuesRemoved = false;
+        
+        List<List<Integer>> valuesInRow = this.getValuesInRow(row);
+
+            int compareColumn = 0;
+            for(List<Integer> valuesInCell : valuesInRow) {
+                //if cell contains only the pair, skip this cell
+                if(valuesInCell.containsAll(pairInRow) && valuesInCell.size() == pairInRow.size()) {
+                    //skip
+                }
+                //if this cell contains the candidate with other values, remove the pair and keep the other candidates
+                //if(valuesInCell.containsAll(pairInRow) && valuesInCell.size() > pairInRow.size()) {
+                else{
+                    LOGGER.debug("Removing pair [" + pairInRow + "] from row " + row + "in cell [" + valuesInCell + "]");
+                    valuesRemoved = valuesInCell.removeAll(pairInRow);
+                    if(valuesInCell.size() == 0) {
+                        throw new InvalidCandidateRemovalException();
+                    }
+                    valuesInRow.set(compareColumn, valuesInCell);
+                    this.solutionGrid.set(row, valuesInRow);
+                }
+                compareColumn++;
+            }
+        return valuesRemoved;
+    }
     
     /**
      * 
@@ -823,9 +894,30 @@ public class SudokuGraderApp {
         // replace candidates in this cell if they appear as a naked single in the same row, column or square,
         // but only if this cell isn't a naked single itself
         if (valuesInCell.size() > 1) {
+            if(valuesInCell.size() == singleValuesInRow.size() && valuesInCell.containsAll(singleValuesInRow)) {
+                throw new InvalidCandidateRemovalException();
+            }
             boolean valuesReplacedInRow = valuesInCell.removeAll(singleValuesInRow);
+            if(valuesInCell.size() == 0) {
+                throw new InvalidCandidateRemovalException();
+            }
+            
+            if(valuesInCell.size() == singleValuesInCol.size() && valuesInCell.containsAll(singleValuesInCol)) {
+                throw new InvalidCandidateRemovalException();
+            }
             boolean valuesReplacedInCol = valuesInCell.removeAll(singleValuesInCol);
+            if(valuesInCell.size() == 0) {
+                throw new InvalidCandidateRemovalException();
+            }
+            
+            if(valuesInCell.size() == singleValuesInSquare.size() && valuesInCell.containsAll(singleValuesInSquare)) {
+                throw new InvalidCandidateRemovalException();
+            }
+            //TODO: bug at some point row1 col7 is empty here after this next removal for the hard pairs test
             boolean valuesReplacedInSquare = valuesInCell.removeAll(singleValuesInSquare);
+            if(valuesInCell.size() == 0) {
+                throw new InvalidCandidateRemovalException();
+            }
 
             valuesReplaced = valuesReplacedInRow || valuesReplacedInCol || valuesReplacedInSquare;
             if (valuesReplaced) {
