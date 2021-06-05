@@ -63,6 +63,9 @@ public class SudokuGraderApp {
     
     private PuzzleDifficulty difficulty = new PuzzleDifficulty();
     private PuzzlePrinter printer = new PuzzlePrinter();
+
+    //tracks pairs already identified in a row
+    private Map<Integer, List<List<Integer>>> identifiedPairsInRow = new HashMap<>();
     
     /**
      * Default constructor.
@@ -228,15 +231,17 @@ public class SudokuGraderApp {
                     //TODO: try findPairsInCandidateRows first, add columns and squares later
                     //TODO: findPairsInCandidateCols
                     //TODO: findPairsInCandidateSquares
-                        for (int row = 0; row < 9; row++) {
-                            boolean solvedValuesThisPass = this.findPairsInCandidateRows(row, 2);
-                            if (solvedValuesThisPass) {
-                                replacedOnLastIteration = solvedValuesThisPass;
-                            }
+                    //TODO test first row only
+                    for (int row = 0; row < 3; row++) {
+                    //for (int row = 0; row < 9; row++) {
+                        boolean solvedValuesThisPass = this.findPairsInCandidateRows(row, 2);
+                        if (solvedValuesThisPass) {
+                            replacedOnLastIteration = solvedValuesThisPass;
                         }
-                        if (!replacedOnLastIteration) {
-                            solvedValuesOnAtLeastOnePass = false;
-                        }
+                    }
+                    if (!replacedOnLastIteration) {
+                        solvedValuesOnAtLeastOnePass = false;
+                    }
 
                     passesThroughGridCount++;
                     this.printer.printSolutionGrid(this.solutionGrid);
@@ -303,8 +308,6 @@ public class SudokuGraderApp {
         for(Map.Entry<List<Integer>, List<Integer>> entry : locationOfPairs.entrySet()) {
             System.out.println("pair [" + entry.getKey().toString() + " locations [" + entry.getValue().toString());
             
-            //TODO finish this
-            
             //does this pair exist in 2 cells where the pair is the only 2 candidates in that cell
             //how many cells contain just 2 values?
             //TODO this can probably be simplified to use Streams
@@ -312,25 +315,58 @@ public class SudokuGraderApp {
             List<Integer> cellsContainingOnlyThisPair = new ArrayList<>();
             for(Integer index : entry.getValue()) {
                 System.out.println("    column: " + index + " : candidates: " + rowCandidates.get(index).size());
+                //TODO test bug with specific puzzle with pairs here
+                if(rowCandidates.get(index).containsAll(Arrays.asList(6,7))) {
+                    System.out.println("Found 6,7");
+                }
                 if(rowCandidates.get(index).size() == 2) {
                     containsOnlyThisPair++;
                     cellsContainingOnlyThisPair.add(index);
                 }
             }
             if(containsOnlyThisPair == 2) {
-                System.out.println("    Match - cells containing only this pair: " + cellsContainingOnlyThisPair);
+                System.out.println("    Match - cells containing only this pair: " + cellsContainingOnlyThisPair);                
+                
                 result = this.removePairFromCandidatesInRowWherePairExists(row, entry.getKey());
+
+                //add new pair to tracked list for this row
+                List<List<Integer>> knownPairsInRow = this.identifiedPairsInRow.get(row);
+                if(knownPairsInRow == null) {
+                    knownPairsInRow = new ArrayList<>();
+                }
+                knownPairsInRow.add(entry.getKey());
+                this.identifiedPairsInRow.put(row, knownPairsInRow);
+
                 this.difficulty.setNakedPairsCount(this.difficulty.getNakedPairsCount() +1);
             }
             else {
                 System.out.println("    No match");
             }
-                
-            
-            //if so, remove this pair in candidates for any other cell
+ 
         }
         
         return result;
+    }
+
+    //TODO unit test
+    boolean doesCellContainPreviouslyIndetifiedPair(int row, List<Integer> valuesInCell) {
+        boolean valueIsInAKnownPair = false;
+        
+        List<List<Integer>> knownPairsInRow = this.identifiedPairsInRow.get(row);
+        if(knownPairsInRow != null && !knownPairsInRow.isEmpty()) {
+            for(Integer value : valuesInCell) {
+                for(List<Integer> knownPair : knownPairsInRow) {
+                    valueIsInAKnownPair = knownPair.contains(value);
+                    if(valueIsInAKnownPair) {
+                        break;
+                    }
+                }
+                if(valueIsInAKnownPair) {
+                    break;
+                }
+            }
+        }
+        return valueIsInAKnownPair;
     }
 
     /**
@@ -720,13 +756,24 @@ public class SudokuGraderApp {
                 //if this cell contains the candidate with other values, remove the pair and keep the other candidates
                 //if(valuesInCell.containsAll(pairInRow) && valuesInCell.size() > pairInRow.size()) {
                 else{
-                    LOGGER.debug("Removing pair [" + pairInRow + "] from row " + row + "in cell [" + valuesInCell + "]");
-                    valuesRemoved = valuesInCell.removeAll(pairInRow);
-                    if(valuesInCell.size() == 0) {
-                        throw new InvalidCandidateRemovalException();
+                    
+                    //does the current cell contain only a previously identified pair? if so we can't remove these
+                    //values so we'll skip this cell
+                    if(this.doesCellContainPreviouslyIndetifiedPair(row, valuesInCell)){
+                        LOGGER.debug("Currrent cell contains identified pair, cannot remove values: [" + valuesInCell + "]");
                     }
-                    valuesInRow.set(compareColumn, valuesInCell);
-                    this.solutionGrid.set(row, valuesInRow);
+                    else {
+                        LOGGER.debug("Removing pair [" + pairInRow + "] from row " + row + "in cell [" + valuesInCell + "]");
+                        boolean removed = valuesInCell.removeAll(pairInRow);
+                        if(removed) {
+                            valuesRemoved = true;
+                        }
+                        if(valuesInCell.size() == 0) {
+                            throw new InvalidCandidateRemovalException();
+                        }
+                        valuesInRow.set(compareColumn, valuesInCell);
+                        this.solutionGrid.set(row, valuesInRow);
+                    }
                 }
                 compareColumn++;
             }
@@ -899,7 +946,8 @@ public class SudokuGraderApp {
             }
             boolean valuesReplacedInRow = valuesInCell.removeAll(singleValuesInRow);
             if(valuesInCell.size() == 0) {
-                throw new InvalidCandidateRemovalException();
+                //TODO test removing this - did this used to work even though it's making invalid removals?
+                //throw new InvalidCandidateRemovalException();
             }
             
             if(valuesInCell.size() == singleValuesInCol.size() && valuesInCell.containsAll(singleValuesInCol)) {
@@ -907,16 +955,19 @@ public class SudokuGraderApp {
             }
             boolean valuesReplacedInCol = valuesInCell.removeAll(singleValuesInCol);
             if(valuesInCell.size() == 0) {
-                throw new InvalidCandidateRemovalException();
+                //TODO test removing this - did this used to work even though it's making invalid removals?
+                //throw new InvalidCandidateRemovalException();
             }
             
             if(valuesInCell.size() == singleValuesInSquare.size() && valuesInCell.containsAll(singleValuesInSquare)) {
-                throw new InvalidCandidateRemovalException();
+                //TODO test removing this - did this used to work even though it's making invalid removals?
+                //throw new InvalidCandidateRemovalException();
             }
             //TODO: bug at some point row1 col7 is empty here after this next removal for the hard pairs test
             boolean valuesReplacedInSquare = valuesInCell.removeAll(singleValuesInSquare);
             if(valuesInCell.size() == 0) {
-                throw new InvalidCandidateRemovalException();
+                //TODO test removing this - did this used to work even though it's making invalid removals?
+                //throw new InvalidCandidateRemovalException();
             }
 
             valuesReplaced = valuesReplacedInRow || valuesReplacedInCol || valuesReplacedInSquare;
