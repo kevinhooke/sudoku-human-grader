@@ -8,13 +8,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import kh.sudoku.PuzzleResults;
+import kh.sudoku.SudokuSolverWithDLX;
 import kh.sudokugrader.exception.SolutionGridNotInitializedException;
 
 /**
@@ -54,13 +56,18 @@ public class SudokuGraderApp {
      { 0, 0, 1, 0, 0, 9, 6, 0, 2 }
      };
 
+     
+     
     // list (rows) of list of list of integers
     // eg { {1, 2, 3}, {1, 2, 3}, {1, 2, 3}, ... },
     // { {1, 2, 3}, {1, 2, 3}, {1, 2, 3}, ... },
     // ... }
     private List<List<List<Integer>>> solutionGrid = new ArrayList<>();
 
-    
+    /**
+     * Target solution produced by DLX solver as a comparison with the human solver.
+     */
+    private PuzzleResults targetSolution;
     private PuzzleDifficulty difficulty = new PuzzleDifficulty();
     private PuzzlePrinter printer = new PuzzlePrinter();
 
@@ -149,6 +156,7 @@ public class SudokuGraderApp {
      * - TODO
      */
     public PuzzleDifficulty gradePuzzle() {
+        boolean isSolutionValid = false;
         
         //check starting grid was initialized
         if(this.solutionGrid == null || this.solutionGrid.size() == 0) {
@@ -157,6 +165,8 @@ public class SudokuGraderApp {
         
         int passesThroughGridCount = 0;
 
+        this.solveWithDLX();
+        
         // pass 1 - loop through squares and populate empty cells with lists of all candidate values
         this.populateCandidateValues();
 
@@ -191,6 +201,15 @@ public class SudokuGraderApp {
                 }
                 passesThroughGridCount++;
                 this.printer.printSolutionGrid(this.solutionGrid);
+            }
+            
+            isSolutionValid = this.checkSolutionValid();
+            if(isSolutionValid) {
+                LOGGER.info("... solution is valid so far, continuging");
+            }
+            else
+            {
+                throw new SolutionIsIlvalid();
             }
             
             //did we find a solution? if not try next approach
@@ -275,6 +294,63 @@ public class SudokuGraderApp {
     }
 
     /**
+     * Is the solution valid so far? Checks values with single cells to check they compare
+     * against the known solution.
+     * @return
+     */
+    boolean checkSolutionValid() {
+        boolean solutionIsValid = false;
+        int row = 0;
+        int col = 0;
+        for(List<List<Integer>> valuesInRow : this.solutionGrid) {
+            col = 0;
+            for(List<Integer> valuesInCol : valuesInRow) {
+                String solutionRow = this.targetSolution.getResults().get(0).get(row);
+                
+                //if there is a single value in this cell, compare with target solution
+                if(valuesInCol.size() == 1) {
+                    int expectedValue = Integer.parseInt(solutionRow.substring(col, col+1));
+                    Integer currentValue = valuesInCol.get(0);
+                    if(currentValue.equals( expectedValue )) {
+                        //matches, solution valid so far
+                    }
+                    else {
+                        LOGGER.error("Row [" + row + "], col [" + col + "] value [" + currentValue 
+                                + "] invalid, expected [" + expectedValue + "]");
+                        throw new SolutionInvalid();
+                    }
+                }
+                
+                col++;
+            }
+            row++;
+        }
+        solutionIsValid = true;
+        return solutionIsValid;
+    }
+
+    //TODO
+    private void solveWithDLX() {
+        SudokuSolverWithDLX solver = new SudokuSolverWithDLX();
+        List<String> shorthand = this.convertIntGridToShorthand(this.startingSudokuGrid);
+        System.out.println("Starting shorthand for puzzle:");
+        for(String row : shorthand) {
+            System.out.println(row);
+        }
+
+        //solver.initiateCandidateMatrix(shorthand);
+        this.targetSolution = solver.run(shorthand, 10);
+        if(this.targetSolution.isValidPuzzle()) {
+            LOGGER.info("Starting grid is a valid puzzle");
+        }
+        else {
+            LOGGER.info("Starting grid is NOT valid!");
+            throw new InvalidPuzzleException();
+        }
+            
+    }
+
+    /**
      * Finds pairs in a given row, and removes anywhere in the same row where those
      * pair values exist in the same row.
      *  
@@ -294,7 +370,8 @@ public class SudokuGraderApp {
         // [4,1] : [1]
         // [4,2] : [1]
         Map<List<Integer>, List<Integer>> locationOfPairs = this.findListsContainingPairs(values);
-        result = this.removeCandidatesWherePairExistsTwice(row, locationOfPairs);
+        //TODO: test is this causing blank cells?
+        //result = this.removeCandidatesWherePairExistsTwice(row, locationOfPairs);
         return result;
     }
 
@@ -1264,6 +1341,25 @@ public class SudokuGraderApp {
         this.startingSudokuGrid = sudokuGrid;
     }
 
+    //TODO should convert this to use the same String shorthand format that's used by SolverWithDLX
+    List<String> convertIntGridToShorthand(int[][] grid){
+        List<String> shorthand = new ArrayList<>();
+        
+        for(int[] row : grid) {
+            StringBuilder builder = new StringBuilder();
+            for(int col : row) {
+                if(col == 0) {
+                    builder.append(".");
+                }
+                else {
+                    builder.append(Integer.toString(col));
+                }
+            }
+            shorthand.add(builder.toString());
+        }
+        
+        return shorthand;
+    }
     public void setSudokuGridWithSolutionShorthand(List<String> solutionShorthand) {
         int[][] startingGrid = new int[9][9];
         int rowIndex = 0;
