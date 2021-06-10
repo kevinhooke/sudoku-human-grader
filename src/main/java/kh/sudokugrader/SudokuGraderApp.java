@@ -251,8 +251,8 @@ public class SudokuGraderApp {
                     //TODO: findPairsInCandidateCols
                     //TODO: findPairsInCandidateSquares
                     //TODO test first row only
-                    for (int row = 0; row < 3; row++) {
-                    //for (int row = 0; row < 9; row++) {
+                    //for (int row = 0; row < 3; row++) {
+                    for (int row = 0; row < 9; row++) {
                         boolean solvedValuesThisPass = this.findPairsInCandidateRows(row, 2);
                         if (solvedValuesThisPass) {
                             replacedOnLastIteration = solvedValuesThisPass;
@@ -317,6 +317,7 @@ public class SudokuGraderApp {
                     else {
                         LOGGER.error("Row [" + row + "], col [" + col + "] value [" + currentValue 
                                 + "] invalid, expected [" + expectedValue + "]");
+                        solutionIsValid = false;
                         throw new SolutionInvalid();
                     }
                 }
@@ -369,9 +370,26 @@ public class SudokuGraderApp {
         // [2,3] : [0]
         // [4,1] : [1]
         // [4,2] : [1]
+        
+        if(this.checkSolutionValid()) {
+            LOGGER.info("... solution is valid so far, continuging");
+        }
+        else
+        {
+            throw new SolutionIsIlvalid();
+        }
+        
         Map<List<Integer>, List<Integer>> locationOfPairs = this.findListsContainingPairs(values);
-        //TODO: test is this causing blank cells?
-        //result = this.removeCandidatesWherePairExistsTwice(row, locationOfPairs);
+        result = this.removeCandidatesWherePairExistsTwice(row, locationOfPairs);
+        
+        if(this.checkSolutionValid()) {
+            LOGGER.info("... solution is valid so far, continuging");
+        }
+        else
+        {
+            throw new SolutionIsIlvalid();
+        }
+        
         return result;
     }
 
@@ -389,6 +407,7 @@ public class SudokuGraderApp {
             //how many cells contain just 2 values?
             //TODO this can probably be simplified to use Streams
             int containsOnlyThisPair = 0;
+            int cellsContainingThisPairAndOtherValues = 0;
             List<Integer> cellsContainingOnlyThisPair = new ArrayList<>();
             for(Integer index : entry.getValue()) {
                 System.out.println("    column: " + index + " : candidates: " + rowCandidates.get(index).size());
@@ -400,8 +419,11 @@ public class SudokuGraderApp {
                     containsOnlyThisPair++;
                     cellsContainingOnlyThisPair.add(index);
                 }
+                else {
+                    cellsContainingThisPairAndOtherValues++;
+                }
             }
-            if(containsOnlyThisPair == 2) {
+            if(containsOnlyThisPair == 2 && cellsContainingThisPairAndOtherValues == 0) {
                 System.out.println("    Match - cells containing only this pair: " + cellsContainingOnlyThisPair);                
                 
                 result = this.removePairFromCandidatesInRowWherePairExists(row, entry.getKey());
@@ -648,7 +670,11 @@ public class SudokuGraderApp {
      */
     boolean findHiddenSinglesInCandidates(int row, int col) {
         boolean valuesReplaced = false;
+        boolean isSolutionValid = false;
         int startingUnsolvedCells = this.checkForCompleteSolution();
+        
+        System.out.println("before findHiddenSinglesSquareByRowCol() : ");
+        this.printer.printSolutionGrid(this.solutionGrid);
         
         //find hidden singles in square
         Set<Integer> hiddenSinglesInSquare = this.findHiddenSinglesSquareByRowCol(row, col);
@@ -656,7 +682,25 @@ public class SudokuGraderApp {
         boolean valuesRemovedInSquare = false;
         if(hiddenSinglesInSquare.size() > 0)
         {
+            //TODO debug
+            if(row == 3 && col == 3) {
+                System.out.println("Reached row 3, col 3");
+            }
+            
             valuesRemovedInSquare = this.removeOtherCandidatesInSquareWhereHiddenSinglesExist(row, col, hiddenSinglesInSquare);
+        }
+
+        System.out.println("... after removeOtherCandidatesInSquareWhereHiddenSinglesExist(), removed: " + valuesRemovedInSquare);
+        this.printer.printSolutionGrid(this.solutionGrid);
+
+        
+        isSolutionValid = this.checkSolutionValid();
+        if(isSolutionValid) {
+            LOGGER.info("... solution is valid so far, continuing");
+        }
+        else
+        {
+            throw new SolutionIsIlvalid();
         }
         
         // find hidden singles in row
@@ -667,12 +711,30 @@ public class SudokuGraderApp {
             valuesRemovedInCell = this.removeOtherCandidatesInCellWhereHiddenSingleExists(row, hiddenSinglesInRow);
         }
         
+        isSolutionValid = this.checkSolutionValid();
+        if(isSolutionValid) {
+            LOGGER.info("... solution is valid so far, continuging");
+        }
+        else
+        {
+            throw new SolutionIsIlvalid();
+        }
+        
         // get hidden singles in col
         Set<Integer> hiddenSinglesInCol = this.findHiddenSinglesInColumn(col);
         boolean valuesRemovedInCol = false;
         //remove other candidates in col
         if(hiddenSinglesInCol.size() > 0) {
             valuesRemovedInCol = this.removeOtherCandidatesInColWhereHiddenSinglesExist(row, col, hiddenSinglesInCol);
+        }
+        
+        isSolutionValid = this.checkSolutionValid();
+        if(isSolutionValid) {
+            LOGGER.info("... solution is valid so far, continuging");
+        }
+        else
+        {
+            throw new SolutionIsIlvalid();
         }
         
         if(valuesRemovedInSquare || valuesRemovedInCell || valuesRemovedInCol) {
@@ -957,7 +1019,7 @@ public class SudokuGraderApp {
         return hiddenSingles;
     }
 
-    // TODO ** HERE ** finish this
+    // TODO unit test - this is causing the removal of incorrect values?
     Set<Integer> findHiddenSinglesSquareByRowCol(int row, int col) {
 
         int squareRow = this.getSquareRowFromRow(row);
@@ -1006,14 +1068,24 @@ public class SudokuGraderApp {
      * @param col
      * @return true if any naked singles were found
      */
-    private boolean findNakedSinglesInCandidates(int row, int col) {
+    boolean findNakedSinglesInCandidates(int row, int col) {
         boolean valuesReplaced = false;
+        boolean isSolutionValid = false;
         int startingUnsolvedCells = this.checkForCompleteSolution();
         
         Set<Integer> singleValuesInRow = this.findSingleValuesInRow(row);
         Set<Integer> singleValuesInCol = this.findSingleValuesInColumn(col);
         Set<Integer> singleValuesInSquare = this.findSingleValuesInSquareByRowCol(row, col);
         List<Integer> valuesInCell = this.getValueInCell(row, col);
+        
+        //TODO bug occurs somewhere around 12 remaining
+        //TODO 0,0 replaced with 5, should be 3
+        //TODO 1,0 replaced with 3, should be 5
+        
+        //TODO
+        if(this.checkForCompleteSolution() == 12) {
+            System.out.println("Reached 12 remaining");
+        }
         
         // replace candidates in this cell if they appear as a naked single in the same row, column or square,
         // but only if this cell isn't a naked single itself
@@ -1022,6 +1094,16 @@ public class SudokuGraderApp {
                 throw new InvalidCandidateRemovalException();
             }
             boolean valuesReplacedInRow = valuesInCell.removeAll(singleValuesInRow);
+            
+            isSolutionValid = this.checkSolutionValid();
+            if(isSolutionValid) {
+                LOGGER.info("... solution is valid so far, continuging");
+            }
+            else
+            {
+                throw new SolutionIsIlvalid();
+            }
+            
             if(valuesInCell.size() == 0) {
                 //TODO test removing this - did this used to work even though it's making invalid removals?
                 //throw new InvalidCandidateRemovalException();
@@ -1031,6 +1113,16 @@ public class SudokuGraderApp {
                 throw new InvalidCandidateRemovalException();
             }
             boolean valuesReplacedInCol = valuesInCell.removeAll(singleValuesInCol);
+            
+            isSolutionValid = this.checkSolutionValid();
+            if(isSolutionValid) {
+                LOGGER.info("... solution is valid so far, continuging");
+            }
+            else
+            {
+                throw new SolutionIsIlvalid();
+            }
+            
             if(valuesInCell.size() == 0) {
                 //TODO test removing this - did this used to work even though it's making invalid removals?
                 //throw new InvalidCandidateRemovalException();
@@ -1042,6 +1134,16 @@ public class SudokuGraderApp {
             }
             //TODO: bug at some point row1 col7 is empty here after this next removal for the hard pairs test
             boolean valuesReplacedInSquare = valuesInCell.removeAll(singleValuesInSquare);
+            
+            isSolutionValid = this.checkSolutionValid();
+            if(isSolutionValid) {
+                LOGGER.info("... solution is valid so far, continuging");
+            }
+            else
+            {
+                throw new SolutionIsIlvalid();
+            }
+            
             if(valuesInCell.size() == 0) {
                 //TODO test removing this - did this used to work even though it's making invalid removals?
                 //throw new InvalidCandidateRemovalException();
@@ -1134,13 +1236,16 @@ public class SudokuGraderApp {
     /**
      * Finds hidden singles in a square.
      * 
-     * @param row
-     * @param col
+     * @param row index of the square, e.g. either 0, 1 or 2
+     * @param col index of the square, e.g. either 0, 1 or 2
      * @return candidate values that are hidden singles in this square
      */
     Set<Integer> getHiddenSingleValuesInSquare(int row, int col) {
         Set<Integer> result = new HashSet<>();
         Map<Integer, Integer> candidateValueCounts = new HashMap<>();
+        
+        //KH confirmed working via debugging 6/9/21
+        Set<Integer> nakedSinglesInSquare = this.findSingleValuesInSquareByRowCol(row*3, col*3);
         
         // iterate 3 rows for square
         for (int rowOffset = row * 3; rowOffset < (row * 3) + 3; rowOffset++) {
@@ -1153,6 +1258,7 @@ public class SudokuGraderApp {
                 //collect and hidden value:
                 // - where it only appears once in the square
                 // - and occurs in a cell with more than 1 other candidate in the same cell
+                // - and doesn't already exist as a single candidate
                 //map of 1 through 9, value is count of occurrences
                 if(cellContent.size() > 1) {
                     for(Integer value : cellContent) {
@@ -1171,11 +1277,18 @@ public class SudokuGraderApp {
             }
         }
 
-        //check for any candidate values where they occur only once and copy these to the results
+        //check for any candidate values where they occur only once and don't already exist as a naked single in this square
+        //and copy these to the results
         for(Entry<Integer, Integer> item : candidateValueCounts.entrySet()) {
             if(item.getValue() == 1) {
-                //TODO check this
-                result.add(item.getKey());
+                
+                // ***
+                //TODO check this value doesn't already exist as a single candidate value
+                // *** 6/9/21 here - add this logic, reference values in nakedSinglesInSquare
+                
+                if(!nakedSinglesInSquare.contains(item.getKey())) {
+                    result.add(item.getKey());
+                }
             }
         }
         

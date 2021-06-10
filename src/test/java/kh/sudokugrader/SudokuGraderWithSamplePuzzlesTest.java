@@ -226,11 +226,19 @@ public class SudokuGraderWithSamplePuzzlesTest {
         SudokuGraderApp app = new SudokuGraderApp();
         app.setSudokuGrid(this.sudokuGrid_easy3);
         app.populateSolutionGridWithStartingPosition();
-        PuzzleDifficulty diffculty = app.gradePuzzle();
+        PuzzleDifficulty difficulty = null;
+        try {
+         difficulty = app.gradePuzzle();
+        }
+        catch(Exception e) {
+            //ignore for now
+        }
         app.printSolutionGridWithBorders();
         
+        //TODO solution is invalid, need to fix before moving on to pairs
+        
         //TODO need asserts
-        assertTrue(diffculty.isPuzzleSolved());
+        assertTrue(difficulty.isPuzzleSolved());
     }
     
     /**
@@ -263,6 +271,9 @@ public class SudokuGraderWithSamplePuzzlesTest {
         PuzzleDifficulty diffculty = app.gradePuzzle();
         app.printSolutionGridWithBorders();
         
+        //TODO solution is invalid, need to fix before moving on to pairs
+
+        
         //TODO need asserts
         assertTrue(diffculty.isPuzzleSolved());
     }
@@ -288,6 +299,9 @@ public class SudokuGraderWithSamplePuzzlesTest {
         PuzzleDifficulty diffculty = app.gradePuzzle();
         app.printSolutionGridWithBorders();
         
+        //TODO solution is invalid before solved, 4,1 is 1, should be 3
+
+        
         //TODO need asserts
         assertTrue(diffculty.isPuzzleSolved());
     }
@@ -311,6 +325,8 @@ public class SudokuGraderWithSamplePuzzlesTest {
         app.populateSolutionGridWithStartingPosition();
         PuzzleDifficulty diffculty = app.gradePuzzle();
         app.printSolutionGridWithBorders();
+        
+        //TODO solution is invalid before solved, 0,0 is 6 but should be 4
         
         //TODO need asserts
         assertTrue(diffculty.isPuzzleSolved());

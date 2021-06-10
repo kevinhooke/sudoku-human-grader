@@ -367,7 +367,162 @@ public class SudokuGraderAppTest {
 	        assertTrue(hiddenSinglesInRow.size() == 1);
 	        assertTrue(hiddenSinglesInRow.contains(2));
 	    }
+	    
+/*
+{ 5,              },{ 2, 9,           },{ 8,              },{ 4,              },{ 2, 3, 9,        },{ 1, 2,           },{ 7,              },{ 2, 3,           },{ 6,              },
+{ 2, 4, 7,        },{ 2, 6, 7,        },{ 2, 4, 7,        },{ 2, 3, 5, 7,     },{ 2, 3, 5, 7,     },{ 2, 5, 7,        },{ 8,              },{ 1,              },{ 9,              },
+{ 1,              },{ 2, 7, 9,        },{ 3,              },{ 2, 7, 8,        },{ 2, 7, 9,        },{ 6,              },{ 4,              },{ 2,              },{ 5,              },
+{ 8,              },{ 2, 7,           },{ 2, 4, 7,        },{ 9,              },{ 1,              },{ 2, 4, 7,        },{ 5,              },{ 6, 7,           },{ 3,              },
+{ 3, 4, 7,        },{ 1, 3, 5, 7,     },{ 9,              },{ 5, 7,           },{ 6,              },{ 4, 5, 7,        },{ 2,              },{ 7, 8,           },{ 1,              },
+{ 6,              },{ 1, 2, 5, 7,     },{ 2, 7,           },{ 2, 5, 7,        },{ 8,              },{ 3,              },{ 9,              },{ 7,              },{ 4,              },
+{ 2, 3,           },{ 2, 3, 8,        },{ 5,              },{ 6,              },{ 2, 3, 4,        },{ 2, 4, 8,        },{ 1,              },{ 4, 9,           },{ 7,              },
+{ 9,              },{ 4,              },{ 6,              },{ 1, 2, 5, 7,     },{ 2, 5, 7,        },{ 1, 2, 5, 7,     },{ 3,              },{ 5,              },{ 8,              },
+{ 3, 7,           },{ 3, 7, 8,        },{ 1,              },{ 3, 5, 7, 8,     },{ 3, 4, 5, 7,     },{ 9,              },{ 6,              },{ 4,              },{ 2,              },
+ */
+	   @Test
+	   public void testfindHiddenSinglesSquareByRowCol() {
+           SudokuGraderApp app = new SudokuGraderApp();
+           app.populateSolutionGridWithStartingPosition();
+           
+           List<List<Integer>> testRow = new ArrayList<>();
+           testRow.add(Arrays.asList(5));
+           testRow.add(Arrays.asList(2,9));
+           testRow.add(Arrays.asList(8));
+           testRow.add(Arrays.asList(4));
+           testRow.add(Arrays.asList(2,3,9));
+           testRow.add(Arrays.asList(1,2));
+           testRow.add(Arrays.asList(7));
+           testRow.add(Arrays.asList(2,3));
+           testRow.add(Arrays.asList(6));
+           app.setRowInSolutionGrid(0, testRow);
+           
+           testRow = new ArrayList<>();
+           testRow.add(Arrays.asList(2,4,7));
+           testRow.add(Arrays.asList(2,6,7));
+           testRow.add(Arrays.asList(2,4,7));
+           testRow.add(Arrays.asList(2,3,5,7));
+           testRow.add(Arrays.asList(2,3,5,7));
+           testRow.add(Arrays.asList(2,5,7));
+           testRow.add(Arrays.asList(8));
+           testRow.add(Arrays.asList(1));
+           testRow.add(Arrays.asList(9));
+           app.setRowInSolutionGrid(1, testRow);
+                      
+           testRow = new ArrayList<>();
+           testRow.add(Arrays.asList(1));
+           testRow.add(Arrays.asList(2,7,9));
+           testRow.add(Arrays.asList(3));
+           testRow.add(Arrays.asList(2,7,8));
+           testRow.add(Arrays.asList(2,7,9));
+           testRow.add(Arrays.asList(6));
+           testRow.add(Arrays.asList(4));
+           testRow.add(Arrays.asList(2));
+           testRow.add(Arrays.asList(5));
+           app.setRowInSolutionGrid(2, testRow);
+           
+           testRow = new ArrayList<>();
+           testRow.add(Arrays.asList(8));
+           testRow.add(Arrays.asList(2,7));
+           testRow.add(Arrays.asList(2,4,7));
+           testRow.add(Arrays.asList(9));
+           testRow.add(Arrays.asList(1));
+           testRow.add(Arrays.asList(2,4,7));
+           testRow.add(Arrays.asList(5));
+           testRow.add(Arrays.asList(6,7));
+           testRow.add(Arrays.asList(3));
+           app.setRowInSolutionGrid(3, testRow);
+           
+           testRow = new ArrayList<>();
+           testRow.add(Arrays.asList(3,4,7));
+           testRow.add(Arrays.asList(1,3,5,7));
+           testRow.add(Arrays.asList(9));
+           testRow.add(Arrays.asList(5,7));
+           testRow.add(Arrays.asList(6));
+           testRow.add(Arrays.asList(4,5,7));
+           testRow.add(Arrays.asList(1));
+           testRow.add(Arrays.asList(7,8));
+           testRow.add(Arrays.asList(1));
+           app.setRowInSolutionGrid(4, testRow);
+           
+           testRow = new ArrayList<>();
+           testRow.add(Arrays.asList(6));
+           testRow.add(Arrays.asList(1,2,5,7));
+           testRow.add(Arrays.asList(2,7));
+           testRow.add(Arrays.asList(2,5,7));
+           testRow.add(Arrays.asList(8));
+           testRow.add(Arrays.asList(3));
+           testRow.add(Arrays.asList(9));
+           testRow.add(Arrays.asList(7));
+           testRow.add(Arrays.asList(4));
+           app.setRowInSolutionGrid(5, testRow);
+           
+           Set<Integer> hiddenSingles = app.findHiddenSinglesSquareByRowCol(0, 3);
+           assertEquals(2, hiddenSingles.size());
+           assertTrue(hiddenSingles.containsAll(Arrays.asList(1,8)));
+           
+           hiddenSingles = app.findHiddenSinglesSquareByRowCol(3, 3);
+           assertEquals(0, hiddenSingles.size());
+	   }
 
+/*
+{ 3, 6, 7, 9,     },{ 3, 7, 9,        },{ 8,              },{ 2,              },{ 6, 9,           },{ 4,              },{ 7,              },{ 5,              },{ 1,              },
+{ 1,              },{ 3, 5, 7, 9,     },{ 3, 6, 7, 9,     },{ 2, 3, 5, 6, 8,  },{ 5, 6, 9,        },{ 1, 2, 3, 5, 6, 9,  },{ 8,              },{ 4,              },{ 2,              },
+{ 2,              },{ 5,              },{ 4,              },{ 8,              },{ 7,              },{ 1,              },{ 6,              },{ 3,              },{ 9,              },
+*/
+       @Test
+       public void testfindHiddenSinglesSquareByRowCol_2() {
+           SudokuGraderApp app = new SudokuGraderApp();
+           app.populateSolutionGridWithStartingPosition();
+           
+           List<List<Integer>> testRow = new ArrayList<>();
+           testRow.add(Arrays.asList(3,6,7,9));
+           testRow.add(Arrays.asList(3,7,9));
+           testRow.add(Arrays.asList(8));
+           testRow.add(Arrays.asList(2));
+           testRow.add(Arrays.asList(6,9));
+           testRow.add(Arrays.asList(4));
+           testRow.add(Arrays.asList(7));
+           testRow.add(Arrays.asList(5));
+           testRow.add(Arrays.asList(1));
+           app.setRowInSolutionGrid(6, testRow);
+           
+           testRow = new ArrayList<>();
+           testRow.add(Arrays.asList(1));
+           testRow.add(Arrays.asList(3,5,7,9));
+           testRow.add(Arrays.asList(3,6,7,9));
+           testRow.add(Arrays.asList(2,3,5,6,8));
+           testRow.add(Arrays.asList(5,6,9));
+           testRow.add(Arrays.asList(1,2,3,5,6,9));
+           testRow.add(Arrays.asList(8));
+           testRow.add(Arrays.asList(4));
+           testRow.add(Arrays.asList(2));
+           app.setRowInSolutionGrid(7, testRow);
+                      
+           testRow = new ArrayList<>();
+           testRow.add(Arrays.asList(2));
+           testRow.add(Arrays.asList(5));
+           testRow.add(Arrays.asList(4));
+           testRow.add(Arrays.asList(8));
+           testRow.add(Arrays.asList(7));
+           testRow.add(Arrays.asList(1));
+           testRow.add(Arrays.asList(6));
+           testRow.add(Arrays.asList(3));
+           testRow.add(Arrays.asList(8));
+           app.setRowInSolutionGrid(8, testRow);
+           
+           
+           //TODO here - rows and cols between actual rows/cols and squares is all wrong
+           
+           Set<Integer> hiddenSingles = app.findHiddenSinglesSquareByRowCol(6, 0);
+           assertEquals(0, hiddenSingles.size());
+           
+           hiddenSingles = app.findHiddenSinglesSquareByRowCol(6, 3);
+           assertEquals(0, hiddenSingles.size());
+           
+           hiddenSingles = app.findHiddenSinglesSquareByRowCol(6, 6);
+           assertEquals(0, hiddenSingles.size());
+           }
+       
 	   @Test
 	   public void testsetSudokuGridWithSolutionShorthand1() {
 	       List<String> givenSolutionsShorthand = new ArrayList<>();
