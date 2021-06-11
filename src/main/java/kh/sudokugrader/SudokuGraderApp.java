@@ -379,6 +379,7 @@ public class SudokuGraderApp {
             throw new SolutionIsIlvalid();
         }
         
+        //TODO bug row 0 [1,6] is not removing other values now
         Map<List<Integer>, List<Integer>> locationOfPairs = this.findListsContainingPairs(values);
         result = this.removeCandidatesWherePairExistsTwice(row, locationOfPairs);
         
@@ -411,10 +412,7 @@ public class SudokuGraderApp {
             List<Integer> cellsContainingOnlyThisPair = new ArrayList<>();
             for(Integer index : entry.getValue()) {
                 System.out.println("    column: " + index + " : candidates: " + rowCandidates.get(index).size());
-                //TODO test bug with specific puzzle with pairs here
-                if(rowCandidates.get(index).containsAll(Arrays.asList(6,7))) {
-                    System.out.println("Found 6,7");
-                }
+   
                 if(rowCandidates.get(index).size() == 2) {
                     containsOnlyThisPair++;
                     cellsContainingOnlyThisPair.add(index);
@@ -423,7 +421,8 @@ public class SudokuGraderApp {
                     cellsContainingThisPairAndOtherValues++;
                 }
             }
-            if(containsOnlyThisPair == 2 && cellsContainingThisPairAndOtherValues == 0) {
+            //if(containsOnlyThisPair == 2 && cellsContainingThisPairAndOtherValues == 0) {
+            if(containsOnlyThisPair == 2) {
                 System.out.println("    Match - cells containing only this pair: " + cellsContainingOnlyThisPair);                
                 
                 result = this.removePairFromCandidatesInRowWherePairExists(row, entry.getKey());
@@ -437,6 +436,9 @@ public class SudokuGraderApp {
                 this.identifiedPairsInRow.put(row, knownPairsInRow);
 
                 this.difficulty.setNakedPairsCount(this.difficulty.getNakedPairsCount() +1);
+                
+                //after the first removal the list of pair locations is no longer valid so we need to exit and refresh the list
+                break;
             }
             else {
                 System.out.println("    No match");
