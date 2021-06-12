@@ -510,9 +510,6 @@ public class SudokuGraderAppTest {
            testRow.add(Arrays.asList(8));
            app.setRowInSolutionGrid(8, testRow);
            
-           
-           //TODO here - rows and cols between actual rows/cols and squares is all wrong
-           
            Set<Integer> hiddenSingles = app.findHiddenSinglesSquareByRowCol(6, 0);
            assertEquals(0, hiddenSingles.size());
            

@@ -28,11 +28,13 @@ public class SudokuGraderWithSamplePuzzlesTest {
     
     /**
      * Easy puzzle from http://www.websudoku.com/?level=1&set_id=7605607374
+     * 
+     * Fixed typo, puzzle is valid.
      */
     private int[][] sudokuGrid_easy2 = {
         {0,8,9,0,0,0,2,0,0}, 
         {7,0,5,3,9,0,4,6,0},
-        {0,0,0,8,0,0,6,5,9},
+        {0,0,0,8,0,0,0,5,9},
         
         {0,0,2,0,0,9,6,0,0},
         {6,0,0,5,4,1,0,0,2},
@@ -112,18 +114,28 @@ public class SudokuGraderWithSamplePuzzlesTest {
      * 
      * From http://hodoku.sourceforge.net/en/tech_singles.php#h1
      */
+//    private int[][] sudokuGrid_easy4 = {
+//            {0,2,8,0,0,7,0,0,0},
+//            {0,1,6,0,8,3,0,7,0},
+//            {0,0,0,0,2,0,8,5,1},
+//            {1,3,7,2,9,0,0,0,0},
+//            {0,0,0,7,3,0,0,0,0},
+//            {0,0,0,0,4,6,3,0,7},
+//            {2,9,0,0,7,0,0,0,0},
+//            {0,0,0,8,6,0,1,4,0},
+//            {0,0,0,3,0,0,7,0,0}           
+//    };
     private int[][] sudokuGrid_easy4 = {
-            {0,2,8,0,0,7,0,0,0},
-            {0,1,6,0,8,3,0,7,0},
-            {0,0,0,0,2,0,8,5,1},
-            {1,3,7,2,9,0,0,0,0},
-            {0,0,0,7,3,0,0,0,0},
+            {0,0,8,0,0,7,0,0,0},
+            {0,1,6,0,8,3,0,0,0},
+            {0,0,0,0,0,0,0,5,1},
+            {1,0,7,2,9,0,0,0,0},
+            {0,0,0,0,0,0,0,0,0},
             {0,0,0,0,4,6,3,0,7},
-            {2,9,0,0,7,0,0,0,0},
+            {2,9,0,0,0,0,0,0,0},
             {0,0,0,8,6,0,1,4,0},
             {0,0,0,3,0,0,7,0,0}           
     };
-
     /**
      * Solveable with hidden singles only
      * 
@@ -242,7 +254,7 @@ public class SudokuGraderWithSamplePuzzlesTest {
     }
     
     /**
-     * TODO: can't currently be solved with naked or hidden singles
+     * TODO: can't currently be solved with naked or hidden singles, or pairs in row
      */
     @Test
     public void testEasy4(){
@@ -345,6 +357,14 @@ public class SudokuGraderWithSamplePuzzlesTest {
         assertTrue(diffculty.isPuzzleSolved());
     }
     
+    /**
+     * Puzzle solved: Yes
+     * Initial givens: 44
+     * Passes through grid: 31
+     * Naked singles found: 6
+     * Hidden singles found: 31
+     * Naked pairs found: 10
+     */
     @Test
     public void testHardWithPairs1() {
         SudokuGraderApp app = new SudokuGraderApp();
