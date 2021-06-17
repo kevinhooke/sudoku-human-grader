@@ -156,7 +156,7 @@ public class SudokuGraderWithSamplePuzzlesTest {
     /**
      * From https://www.sudokuwiki.org/sudoku.htm?bd=400000938032094100095300240370609004529001673604703090957008300003900400240030709
      */
-    private int[][] sudokuGrid_hardWithPairs = {
+    private int[][] sudokuGrid_hardWithPairsInRow_1 = {
         {4,0,0,0,0,0,9,3,8},
         {0,3,2,0,9,4,1,0,0},
         {0,9,5,3,0,0,2,4,0},
@@ -167,6 +167,19 @@ public class SudokuGraderWithSamplePuzzlesTest {
         {0,0,3,9,0,0,4,0,0},
         {2,4,0,0,3,0,7,0,9}
     };
+
+    private int[][] sudokuGrid_hardWithPairsInCol_1 = {
+            {0,9,0,0,0,7,0,5,0},
+            {0,5,0,8,0,0,0,0,0},
+            {1,4,0,0,5,0,2,0,0},
+            {7,0,4,0,9,0,0,0,0},
+            {3,8,1,7,0,0,5,9,6},
+            {5,0,9,0,8,0,7,0,4},
+            {0,7,5,0,3,8,0,4,1},
+            {0,1,0,0,0,6,0,7,0},
+            {0,3,0,1,7,0,0,8,0}
+        };
+
     
     /**
      * This easy puzzle can be solved with only naked singles, confirming therefore
@@ -338,8 +351,6 @@ public class SudokuGraderWithSamplePuzzlesTest {
         PuzzleDifficulty diffculty = app.gradePuzzle();
         app.printSolutionGridWithBorders();
         
-        //TODO solution is invalid before solved, 0,0 is 6 but should be 4
-        
         //TODO need asserts
         assertTrue(diffculty.isPuzzleSolved());
     }
@@ -368,16 +379,29 @@ public class SudokuGraderWithSamplePuzzlesTest {
     @Test
     public void testHardWithPairs1() {
         SudokuGraderApp app = new SudokuGraderApp();
-        app.setSudokuGrid(this.sudokuGrid_hardWithPairs);
+        app.setSudokuGrid(this.sudokuGrid_hardWithPairsInRow_1);
         app.populateSolutionGridWithStartingPosition();
         PuzzleDifficulty diffculty = app.gradePuzzle();
         app.printSolutionGridWithBorders();
         
         //TODO need asserts
-        
-        //TODO result is not matching exact locations, there's duplicates in the results
-        
         assertTrue(diffculty.isPuzzleSolved());      
     }
+        
+    /**
+     * Not solving yet
+     */
+    @Test
+    public void testHardWithPairs2() {
+        SudokuGraderApp app = new SudokuGraderApp();
+        app.setSudokuGrid(this.sudokuGrid_hardWithPairsInCol_1);
+        app.populateSolutionGridWithStartingPosition();
+        PuzzleDifficulty diffculty = app.gradePuzzle();
+        app.printSolutionGridWithBorders();
+        
+        //TODO need asserts
+        assertTrue(diffculty.isPuzzleSolved());      
+    }
+
     
 }

@@ -73,7 +73,10 @@ public class SudokuGraderApp {
 
     //tracks pairs already identified in a row
     private Map<Integer, List<List<Integer>>> identifiedPairsInRow = new HashMap<>();
-    
+
+    //tracks pairs already identified in a col
+    private Map<Integer, List<List<Integer>>> identifiedPairsInCol = new HashMap<>();
+
     /**
      * Default constructor.
      */
@@ -263,7 +266,28 @@ public class SudokuGraderApp {
                 //TODO check tests for pairs in rows. WHen we're solid, add pairs in col
                 //**
                 
-                //TODO: findPairsInCandidateCols
+                //did we find a solution? if not try next approach: findPairsInCandidateCols
+                unsolvedCells = this.checkForCompleteSolution();
+                if(unsolvedCells > 0) {
+                    solvedValuesOnAtLeastOnePass = true;
+                    
+                    while (solvedValuesOnAtLeastOnePass) {
+                        boolean replacedOnLastIteration = false;
+                        for (int col = 0; col < 9; col++) {
+                            boolean solvedValuesThisPass = this.findPairsInCandidateCols(col, 2);
+                            if (solvedValuesThisPass) {
+                                replacedOnLastIteration = solvedValuesThisPass;
+                            }
+                        }
+                        if (!replacedOnLastIteration) {
+                            solvedValuesOnAtLeastOnePass = false;
+                        }
+
+                        passesThroughGridCount++;
+                        this.printer.printSolutionGrid(this.solutionGrid);
+                    }
+                }
+                
                 //TODO: findPairsInCandidateSquares
 
                 
@@ -283,7 +307,7 @@ public class SudokuGraderApp {
         }
         
         //TODO: this needs to be moved to a return from this method
-        
+        LOGGER.info("Difficulty: " + this.difficulty.getDifficulty());
         LOGGER.info("Initial givens: " + this.difficulty.getInitialGivens());
         LOGGER.info("Passes through grid: " + passesThroughGridCount);
         LOGGER.info("Naked singles found: " + this.difficulty.getNakedSingleCount());
@@ -373,19 +397,18 @@ public class SudokuGraderApp {
         // [4,2] : [1]
         
         if(this.checkSolutionValid()) {
-            LOGGER.info("... solution is valid so far, continuging");
+            LOGGER.info("... solution is valid so far, continuing");
         }
         else
         {
             throw new SolutionIsInvalid();
         }
         
-        //TODO bug row 0 [1,6] is not removing other values now
         Map<List<Integer>, List<Integer>> locationOfPairs = this.findListsContainingPairs(values);
-        result = this.removeCandidatesWherePairExistsTwice(row, locationOfPairs);
+        result = this.removeCandidatesInRowWherePairExistsTwice(row, locationOfPairs);
         
         if(this.checkSolutionValid()) {
-            LOGGER.info("... solution is valid so far, continuging");
+            LOGGER.info("... solution is valid so far, continuing");
         }
         else
         {
@@ -395,7 +418,50 @@ public class SudokuGraderApp {
         return result;
     }
 
-    private boolean removeCandidatesWherePairExistsTwice(int row, Map<List<Integer>, List<Integer>> locationOfPairs) {
+    /**
+     * Finds pairs in a given col, and removes anywhere in the same col where those
+     * pair values exist in the same col.
+     *  
+     * @param col the row to search for pairs
+     * @param numberOfCandidates 2 = pairs, 3 = triples, etc
+     * @return true if a pair found and values removed as candidates elsewhere in the row
+     */
+    boolean findPairsInCandidateCols(int col, int numberOfCandidates) {
+        boolean result = false;
+        
+        //get col
+        List<List<Integer>> values = this.getValuesInCol(col);
+        //get locations of pairs
+        // for example:
+        // [1,2] : [0, 1] // the pair [1,2] exists in list 0 and list 1
+        // [2,3] : [0]
+        // [4,1] : [1]
+        // [4,2] : [1]
+        
+        if(this.checkSolutionValid()) {
+            LOGGER.info("... solution is valid so far, continuing");
+        }
+        else
+        {
+            throw new SolutionIsInvalid();
+        }
+        
+        Map<List<Integer>, List<Integer>> locationOfPairs = this.findListsContainingPairs(values);
+        result = this.removeCandidatesInColWherePairExistsTwice(col, locationOfPairs);
+        
+        if(this.checkSolutionValid()) {
+            LOGGER.info("... solution is valid so far, continuing");
+        }
+        else
+        {
+            throw new SolutionIsInvalid();
+        }
+        
+        return result;
+    }
+
+    
+    private boolean removeCandidatesInRowWherePairExistsTwice(int row, Map<List<Integer>, List<Integer>> locationOfPairs) {
         boolean result = false;
         System.out.println("Checking row: " + row);
         //get candidates in current row
@@ -445,8 +511,66 @@ public class SudokuGraderApp {
         return result;
     }
 
+    /**
+     * 
+     * @param col
+     * @param locationOfPairs
+     * @return
+     */
+    private boolean removeCandidatesInColWherePairExistsTwice(int col, Map<List<Integer>, List<Integer>> locationOfPairs) {
+        boolean result = false;
+        System.out.println("Checking col: " + col);
+        //get candidates in current col
+        List<List<Integer>> colCandidates = this.getValuesInCol(col);
+        
+        //find any list where it occurs in 2 locations
+        for(Map.Entry<List<Integer>, List<Integer>> entry : locationOfPairs.entrySet()) {
+            System.out.println("pair [" + entry.getKey().toString() + " locations [" + entry.getValue().toString());
+            
+            //does this pair exist in 2 cells where the pair is the only 2 candidates in that cell
+            //how many cells contain just 2 values?
+            //TODO this can probably be simplified to use Streams
+            int containsOnlyThisPair = 0;
+            List<Integer> cellsContainingOnlyThisPair = new ArrayList<>();
+            for(Integer index : entry.getValue()) {
+                System.out.println("    row: " + index + " : candidates: " + colCandidates.get(index).size());
+   
+                if(colCandidates.get(index).size() == 2) {
+                    containsOnlyThisPair++;
+                    cellsContainingOnlyThisPair.add(index);
+                }
+            }
+            if(containsOnlyThisPair == 2) {
+                System.out.println("    Match - cells containing only this pair: " + cellsContainingOnlyThisPair);                
+                
+                result = this.removePairFromCandidatesInColWherePairExists(col, entry.getKey());
+
+                //add new pair to tracked list for this row
+                List<List<Integer>> knownPairsInCol = this.identifiedPairsInRow.get(col);
+                if(knownPairsInCol == null) {
+                    knownPairsInCol = new ArrayList<>();
+                }
+                knownPairsInCol.add(entry.getKey());
+                this.identifiedPairsInRow.put(col, knownPairsInCol);
+
+                this.difficulty.setNakedPairsCount(this.difficulty.getNakedPairsCount() +1);
+                
+                //after the first removal the list of pair locations is no longer valid so we need to exit and refresh the list
+                break;
+            }
+            else {
+                System.out.println("    No match");
+            }
+ 
+        }
+        
+        return result;
+    }
+
+    
+    
     //TODO unit test
-    boolean doesCellContainPreviouslyIndetifiedPair(int row, List<Integer> valuesInCell) {
+    boolean doesCellContainPreviouslyIndetifiedPairInRow(int row, List<Integer> valuesInCell) {
         boolean valueIsInAKnownPair = false;
         
         List<List<Integer>> knownPairsInRow = this.identifiedPairsInRow.get(row);
@@ -466,6 +590,28 @@ public class SudokuGraderApp {
         return valueIsInAKnownPair;
     }
 
+    //TODO unit test
+    boolean doesCellContainPreviouslyIndetifiedPairInCol(int col, List<Integer> valuesInCell) {
+        boolean valueIsInAKnownPair = false;
+        
+        List<List<Integer>> knownPairsInCol = this.identifiedPairsInCol.get(col);
+        if(knownPairsInCol != null && !knownPairsInCol.isEmpty()) {
+            for(Integer value : valuesInCell) {
+                for(List<Integer> knownPair : knownPairsInCol) {
+                    valueIsInAKnownPair = knownPair.contains(value);
+                    if(valueIsInAKnownPair) {
+                        break;
+                    }
+                }
+                if(valueIsInAKnownPair) {
+                    break;
+                }
+            }
+        }
+        return valueIsInAKnownPair;
+    }
+
+    
     /**
      * For each value in a List of List of ints, find index of the list where the int exists.
      * 
@@ -889,11 +1035,11 @@ public class SudokuGraderApp {
                     
                     //does the current cell contain only a previously identified pair? if so we can't remove these
                     //values so we'll skip this cell
-                    if(this.doesCellContainPreviouslyIndetifiedPair(row, valuesInCell)){
+                    if(this.doesCellContainPreviouslyIndetifiedPairInRow(row, valuesInCell)){
                         LOGGER.debug("Currrent cell contains identified pair, cannot remove values: [" + valuesInCell + "]");
                     }
                     else {
-                        LOGGER.debug("Removing pair [" + pairInRow + "] from row " + row + "in cell [" + valuesInCell + "]");
+                        LOGGER.debug("Removing pair [" + pairInRow + "] from row " + row + " in cell [" + valuesInCell + "]");
                         boolean removed = valuesInCell.removeAll(pairInRow);
                         if(removed) {
                             valuesRemoved = true;
@@ -909,6 +1055,52 @@ public class SudokuGraderApp {
             }
         return valuesRemoved;
     }
+
+    /**
+     * For each identified naked pair in this col, find the cells in the col where the
+     * any value in the pair exists with other candidates and remove the pair values.
+     * 
+     * @param pairInCol
+     */
+    boolean removePairFromCandidatesInColWherePairExists(int col, List<Integer> pairInCol) {
+        boolean valuesRemoved = false;
+        
+        List<List<Integer>> valuesInCol = this.getValuesInCol(col);
+
+            int compareColumn = 0;
+            for(List<Integer> valuesInCell : valuesInCol) {
+                //if cell contains only the pair, skip this cell
+                if(valuesInCell.containsAll(pairInCol) && valuesInCell.size() == pairInCol.size()) {
+                    //skip
+                }
+                //if this cell contains the candidate with other values, remove the pair and keep the other candidates
+                //if(valuesInCell.containsAll(pairInRow) && valuesInCell.size() > pairInRow.size()) {
+                else{
+                    
+                    //does the current cell contain only a previously identified pair? if so we can't remove these
+                    //values so we'll skip this cell
+                    if(this.doesCellContainPreviouslyIndetifiedPairInCol(col, valuesInCell)){
+                        LOGGER.debug("Currrent cell contains identified pair, cannot remove values: [" + valuesInCell + "]");
+                    }
+                    else {
+                        LOGGER.debug("Removing pair [" + pairInCol + "] from col " + col + " in cell [" + valuesInCell + "]");
+                        boolean removed = valuesInCell.removeAll(pairInCol);
+                        if(removed) {
+                            valuesRemoved = true;
+                        }
+                        if(valuesInCell.size() == 0) {
+                            throw new InvalidCandidateRemovalException();
+                        }
+                        valuesInCol.set(compareColumn, valuesInCell);
+                        //replace values in col
+                        this.setColumnInSolutionGrid(col, valuesInCol);
+                    }
+                }
+                compareColumn++;
+            }
+        return valuesRemoved;
+    }
+
     
     /**
      * 

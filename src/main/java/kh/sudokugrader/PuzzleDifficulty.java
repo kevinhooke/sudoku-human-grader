@@ -2,6 +2,12 @@ package kh.sudokugrader;
 
 public class PuzzleDifficulty {
     
+    public enum DifficultyRating {
+        EASY,
+        MEDIUM,
+        HARD
+    }
+    
     private boolean puzzleSolved;
     
     private int initialGivens;
@@ -18,6 +24,22 @@ public class PuzzleDifficulty {
     private int nakedTriplesCount;
     private int hiddenTriplesCount;
     private int xWingCount;
+    
+    public DifficultyRating getDifficulty() {
+        DifficultyRating rating = null;
+        
+        if(puzzleSolved && (nakedSingleCount > 0 || hiddenSingleCount > 0 ) && (nakedPairsCount == 0 && hiddenPairsCount == 0)) {
+            rating = DifficultyRating.EASY;
+        }
+        else if(puzzleSolved && (nakedPairsCount > 0 || hiddenPairsCount > 0)){
+            rating = DifficultyRating.MEDIUM;
+        }
+        else{
+            rating = DifficultyRating.HARD;
+        }
+        
+        return rating;
+    }
     
     public int incrementNakedSingleCount() {
         this.nakedSingleCount++;
