@@ -121,7 +121,6 @@ public class SudokuGraderApp {
                 sb.append("|\n");
             }
             rowIndex++;
-            //System.out.println();
         }
         sb.append("+-------+-------+-------+\n");
         LOGGER.info(sb.toString());
@@ -359,9 +358,9 @@ public class SudokuGraderApp {
     private void solveWithDLX() {
         SudokuSolverWithDLX solver = new SudokuSolverWithDLX();
         List<String> shorthand = this.convertIntGridToShorthand(this.startingSudokuGrid);
-        System.out.println("Starting shorthand for puzzle:");
+        LOGGER.debug("Starting shorthand for puzzle:");
         for(String row : shorthand) {
-            System.out.println(row);
+            LOGGER.debug(row);
         }
 
         //solver.initiateCandidateMatrix(shorthand);
@@ -370,7 +369,7 @@ public class SudokuGraderApp {
             LOGGER.info("Starting grid is a valid puzzle");
         }
         else {
-            LOGGER.info("Starting grid is NOT valid!");
+            LOGGER.error("Starting grid is NOT valid!");
             throw new InvalidPuzzleException();
         }
             
@@ -463,13 +462,13 @@ public class SudokuGraderApp {
     
     private boolean removeCandidatesInRowWherePairExistsTwice(int row, Map<List<Integer>, List<Integer>> locationOfPairs) {
         boolean result = false;
-        System.out.println("Checking row: " + row);
+        LOGGER.debug("Checking row: " + row);
         //get candidates in current row
         List<List<Integer>> rowCandidates = this.getValuesInRow(row);
         
         //find any list where it occurs in 2 locations
         for(Map.Entry<List<Integer>, List<Integer>> entry : locationOfPairs.entrySet()) {
-            System.out.println("pair [" + entry.getKey().toString() + " locations [" + entry.getValue().toString());
+            LOGGER.debug("pair [" + entry.getKey().toString() + " locations [" + entry.getValue().toString());
             
             //does this pair exist in 2 cells where the pair is the only 2 candidates in that cell
             //how many cells contain just 2 values?
@@ -477,7 +476,7 @@ public class SudokuGraderApp {
             int containsOnlyThisPair = 0;
             List<Integer> cellsContainingOnlyThisPair = new ArrayList<>();
             for(Integer index : entry.getValue()) {
-                System.out.println("    column: " + index + " : candidates: " + rowCandidates.get(index).size());
+                LOGGER.debug("    column: " + index + " : candidates: " + rowCandidates.get(index).size());
    
                 if(rowCandidates.get(index).size() == 2) {
                     containsOnlyThisPair++;
@@ -485,7 +484,7 @@ public class SudokuGraderApp {
                 }
             }
             if(containsOnlyThisPair == 2) {
-                System.out.println("    Match - cells containing only this pair: " + cellsContainingOnlyThisPair);                
+                LOGGER.debug("    Match - cells containing only this pair: " + cellsContainingOnlyThisPair);                
                 
                 result = this.removePairFromCandidatesInRowWherePairExists(row, entry.getKey());
 
@@ -503,7 +502,7 @@ public class SudokuGraderApp {
                 break;
             }
             else {
-                System.out.println("    No match");
+                LOGGER.debug("    No match");
             }
  
         }
@@ -519,13 +518,13 @@ public class SudokuGraderApp {
      */
     private boolean removeCandidatesInColWherePairExistsTwice(int col, Map<List<Integer>, List<Integer>> locationOfPairs) {
         boolean result = false;
-        System.out.println("Checking col: " + col);
+        LOGGER.debug("Checking col: " + col);
         //get candidates in current col
         List<List<Integer>> colCandidates = this.getValuesInCol(col);
         
         //find any list where it occurs in 2 locations
         for(Map.Entry<List<Integer>, List<Integer>> entry : locationOfPairs.entrySet()) {
-            System.out.println("pair [" + entry.getKey().toString() + " locations [" + entry.getValue().toString());
+            LOGGER.debug("pair [" + entry.getKey().toString() + " locations [" + entry.getValue().toString());
             
             //does this pair exist in 2 cells where the pair is the only 2 candidates in that cell
             //how many cells contain just 2 values?
@@ -533,7 +532,7 @@ public class SudokuGraderApp {
             int containsOnlyThisPair = 0;
             List<Integer> cellsContainingOnlyThisPair = new ArrayList<>();
             for(Integer index : entry.getValue()) {
-                System.out.println("    row: " + index + " : candidates: " + colCandidates.get(index).size());
+                LOGGER.debug("    row: " + index + " : candidates: " + colCandidates.get(index).size());
    
                 if(colCandidates.get(index).size() == 2) {
                     containsOnlyThisPair++;
@@ -541,7 +540,7 @@ public class SudokuGraderApp {
                 }
             }
             if(containsOnlyThisPair == 2) {
-                System.out.println("    Match - cells containing only this pair: " + cellsContainingOnlyThisPair);                
+                LOGGER.debug("    Match - cells containing only this pair: " + cellsContainingOnlyThisPair);                
                 
                 result = this.removePairFromCandidatesInColWherePairExists(col, entry.getKey());
 
@@ -559,7 +558,7 @@ public class SudokuGraderApp {
                 break;
             }
             else {
-                System.out.println("    No match");
+                LOGGER.debug("    No match");
             }
  
         }
@@ -798,8 +797,7 @@ public class SudokuGraderApp {
                 //this.printValuesSet(singleValuesInSquare);
 
                 Set<Integer> candidateValues = this.getCandidateValues(singleValuesInSquare);
-                //System.out.print("Candidate values: ");
-                //this.printValuesSet(candidateValues);
+
                 // insert candidate values into every blank cell in this square
                 this.updateValuesInSquare(rowSquare, colSquare, new ArrayList<Integer>(candidateValues));
             }
@@ -817,7 +815,7 @@ public class SudokuGraderApp {
         boolean isSolutionValid = false;
         int startingUnsolvedCells = this.checkForCompleteSolution();
         
-        System.out.println("before findHiddenSinglesSquareByRowCol() : ");
+        LOGGER.debug("before findHiddenSinglesSquareByRowCol() : ");
         this.printer.printSolutionGrid(this.solutionGrid);
         
         //find hidden singles in square
@@ -829,13 +827,13 @@ public class SudokuGraderApp {
             valuesRemovedInSquare = this.removeOtherCandidatesInSquareWhereHiddenSinglesExist(row, col, hiddenSinglesInSquare);
         }
 
-        System.out.println("... after removeOtherCandidatesInSquareWhereHiddenSinglesExist(), removed: " + valuesRemovedInSquare);
+        LOGGER.debug("... after removeOtherCandidatesInSquareWhereHiddenSinglesExist(), removed: " + valuesRemovedInSquare);
         this.printer.printSolutionGrid(this.solutionGrid);
 
         
         isSolutionValid = this.checkSolutionValid();
         if(isSolutionValid) {
-            LOGGER.info("... solution is valid so far, continuing");
+            LOGGER.debug("... solution is valid so far, continuing");
         }
         else
         {

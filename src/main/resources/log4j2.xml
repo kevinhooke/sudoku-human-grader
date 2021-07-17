@@ -7,7 +7,7 @@
   </Appenders>
   <Loggers>
     <Logger name="example.logger.name" level="debug"/>
-    <Root level="trace">
+    <Root level="error">
       <AppenderRef ref="STDOUT"/>
     </Root>
   </Loggers>
