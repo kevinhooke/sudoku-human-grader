@@ -22,6 +22,31 @@ import kh.sudokugrader.exception.SolutionGridNotInitializedException;
 /**
  * Sudoku grader. Uses human solving techniques to determine the difficulty of a puzzle.
  * 
+ * Usage example:
+ * 
+ * <pre>
+ * private int[][] sudokuGrid_easy1 = {
+ *   {0,0,0,8,1,0,6,7,0},
+ *   {0,0,7,4,9,0,2,0,8},
+ *   {0,6,0,0,5,0,1,0,4},
+ *   {1,0,0,0,0,3,9,0,0},
+ *   {4,0,0,0,8,0,0,0,7},
+ *   {0,0,6,9,0,0,0,0,3},
+ *   {9,0,2,0,3,0,0,6,0},
+ *   {6,0,1,0,7,4,3,0,0},
+ *   {0,3,4,0,6,9,0,0,0}
+ *   };
+ * 
+ * SudokuGraderApp grader = new SudokuGraderApp();
+ * grader.setSudokuGrid(sudokuGrid_easy1);
+ * grader.populateSolutionGridWithStartingPosition();
+ * PuzzleDifficulty diffculty = grader.gradePuzzle();
+ * grader.printSolutionGridWithBorders();
+ * </pre>
+ * 
+ * See PuzzleDifficulty for methods to call to check whether puzzle is valid
+ * and the difficulty of the puzzle graded by the approaches used by this human grader.
+ * 
  * @author kevinhooke
  *
  */
