@@ -371,10 +371,12 @@ public class SudokuGraderWithSamplePuzzlesTest {
     /**
      * Puzzle solved: Yes
      * Initial givens: 44
-     * Passes through grid: 31
+     * Passes through grid: 35
      * Naked singles found: 6
-     * Hidden singles found: 31
-     * Naked pairs found: 10
+     * Hidden singles found: 30
+     * Naked pairs found: 17
+     * 
+     * Difficulty: MEDIUM
      */
     @Test
     public void testHardWithPairs1() {

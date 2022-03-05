@@ -123,7 +123,7 @@ public class SudokuGraderApp {
             rowIndex++;
         }
         sb.append("+-------+-------+-------+\n");
-        LOGGER.info(sb.toString());
+        LOGGER.debug(sb.toString());
     }
 
     public void populateSolutionGridWithStartingPosition() {
@@ -208,7 +208,7 @@ public class SudokuGraderApp {
             
             isSolutionValid = this.checkSolutionValid();
             if(isSolutionValid) {
-                LOGGER.info("... solution is valid so far, continuing");
+                LOGGER.debug("... solution is valid so far, continuing");
             }
             else
             {
@@ -366,7 +366,7 @@ public class SudokuGraderApp {
         //solver.initiateCandidateMatrix(shorthand);
         this.targetSolution = solver.run(shorthand, 10);
         if(this.targetSolution.isValidPuzzle()) {
-            LOGGER.info("Starting grid is a valid puzzle");
+            LOGGER.debug("Starting grid is a valid puzzle");
         }
         else {
             LOGGER.error("Starting grid is NOT valid!");
@@ -396,7 +396,7 @@ public class SudokuGraderApp {
         // [4,2] : [1]
         
         if(this.checkSolutionValid()) {
-            LOGGER.info("... solution is valid so far, continuing");
+            LOGGER.debug("... solution is valid so far, continuing");
         }
         else
         {
@@ -407,7 +407,7 @@ public class SudokuGraderApp {
         result = this.removeCandidatesInRowWherePairExistsTwice(row, locationOfPairs);
         
         if(this.checkSolutionValid()) {
-            LOGGER.info("... solution is valid so far, continuing");
+            LOGGER.debug("... solution is valid so far, continuing");
         }
         else
         {
@@ -438,7 +438,7 @@ public class SudokuGraderApp {
         // [4,2] : [1]
         
         if(this.checkSolutionValid()) {
-            LOGGER.info("... solution is valid so far, continuing");
+            LOGGER.debug("... solution is valid so far, continuing");
         }
         else
         {
@@ -449,7 +449,7 @@ public class SudokuGraderApp {
         result = this.removeCandidatesInColWherePairExistsTwice(col, locationOfPairs);
         
         if(this.checkSolutionValid()) {
-            LOGGER.info("... solution is valid so far, continuing");
+            LOGGER.debug("... solution is valid so far, continuing");
         }
         else
         {
@@ -850,7 +850,7 @@ public class SudokuGraderApp {
         
         isSolutionValid = this.checkSolutionValid();
         if(isSolutionValid) {
-            LOGGER.info("... solution is valid so far, continuging");
+            LOGGER.debug("... solution is valid so far, continuging");
         }
         else
         {
@@ -867,7 +867,7 @@ public class SudokuGraderApp {
         
         isSolutionValid = this.checkSolutionValid();
         if(isSolutionValid) {
-            LOGGER.info("... solution is valid so far, continuging");
+            LOGGER.debug("... solution is valid so far, continuging");
         }
         else
         {
@@ -1265,7 +1265,7 @@ public class SudokuGraderApp {
             
             isSolutionValid = this.checkSolutionValid();
             if(isSolutionValid) {
-                LOGGER.info("... solution is valid so far, continuging");
+                LOGGER.debug("... solution is valid so far, continuging");
             }
             else
             {
@@ -1283,7 +1283,7 @@ public class SudokuGraderApp {
             
             isSolutionValid = this.checkSolutionValid();
             if(isSolutionValid) {
-                LOGGER.info("... solution is valid so far, continuging");
+                LOGGER.debug("... solution is valid so far, continuging");
             }
             else
             {
@@ -1301,7 +1301,7 @@ public class SudokuGraderApp {
             
             isSolutionValid = this.checkSolutionValid();
             if(isSolutionValid) {
-                LOGGER.info("... solution is valid so far, continuging");
+                LOGGER.debug("... solution is valid so far, continuging");
             }
             else
             {
